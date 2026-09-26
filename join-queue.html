@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueSmart - Join Queue</title>
+  
+  <!-- Link your CSS files here -->
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="join-queue.css">
+  
+  <!-- Link your JS file with 'defer' so it loads after the HTML -->
+  <script src="queue-logic.js" defer></script>
+</head>
+
+<body>
+  <header class="global-header">
+    <h1>QueueSmart</h1>
+    <nav class="global-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="join-queue.html">Join a queue</a>
+    </nav>
+  </header>
+
+  <main class="queue-container">
+    <h2>Join a queue</h2>
+
+    <form id="join-queue-form">
+      <label for="service">Select a service (required):</label>
+
+      <!-- Added a form-control class for standardized input styling -->
+      <select id="service" name="service" class="form-control" required>
+        <option value="">Choose a service</option>
+        <option value="service-1">Service 1</option>
+        <option value="service-2">Service 2</option>
+      </select>
+
+      <p>
+        Estimated wait:
+        <span id="estimated-wait">Select a service first</span>
+      </p>
+
+      <!-- Added btn and btn-primary classes for shared button styles -->
+      <button type="submit" class="btn btn-primary">Join queue</button>
+    </form>
+
+    <!-- Added btn and btn-secondary classes -->
+    <button type="button" id="leave-queue" class="btn btn-secondary" disabled>
+      Leave queue
+    </button>
+
+    <p id="queue-message" role="status"></p>
+  </main>
+</body>
+</html>

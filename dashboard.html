@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueSmart - Dashboard</title>
+</head>
+
+<body>
+  <header>
+    <h1>QueueSmart</h1>
+
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="join-queue.html">Join a queue</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>User Dashboard</h2>
+
+    <section>
+  <h3>My current queue</h3>
+  <p>Service: <span id="current-service">Service 2</span></p>
+  <p>Status: <span id="current-status">Waiting</span></p>
+  <p>Position: <span id="current-position">3</span></p>
+  <p>Estimated wait: <span id="current-wait">15 minutes</span></p>
+</section>
+
+<section>
+  <h3>Available services</h3>
+  <ul id="available-services-list">
+    <!-- JS will populate these `li` items -->
+    <li>Service 1 - estimated wait: 10 minutes</li>
+    <li>Service 2 - estimated wait: 15 minutes</li>
+  </ul>
+  <a href="join-queue.html">Choose a service</a>
+</section>
+
+    <section>
+      <h3>Recent notifications</h3>
+      <ul id="notification-list">
+        <li>You joined the Service 2 queue.</li>
+        <li>Your current position is 3.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
