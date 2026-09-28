@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueSmart - Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header>
+    <h1>Queue<span class="smart">Smart</span></h1>
+
+  </header>
+
+  <main>
+	<h2>Login</h2>
+
+<section>
+  <h3>Login into existing account:</h3>
+  <span id="createdAccount" class="success"></span>
+<form id="loginForm">
+  <label for="lemail">Email:</label><br>
+  <input type="text" id="logemail" name="logemail"><br>
+  <label for="lpassword">Password:</label><br>
+  <input type="password" id="lpassword" name="lpassword"><br><br>
+  <input type="submit" id="logsubmit" value="Submit"> <br>
+</form>
+  <p>
+  <span id="logError" class="error"></span><br>
+  <br>Dont have an account? <br>
+  <a href="queue-signup.html"> Signup here</a>
+  </p>
+</section>
+
+  </main>
+
+<script src="accounts.js" defer></script>
+</body>
+</html>

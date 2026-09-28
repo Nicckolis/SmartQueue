@@ -1,0 +1,39 @@
+/*copy paste this code for the queuesmart at the top of every page */
+h1 {
+text-align: center;
+color: white;
+font-size: 50px;
+background-color: #363636;
+}
+
+h1 .smart {
+color: #C106D6;
+}
+
+h2 {
+text-align: center;
+text-decoration-line: underline;
+}
+
+h3 {
+text-align: center;
+}
+
+/* anything important should be grouped into boxes with the attributes below */
+form {
+  text-align: center;
+  color: white;
+  border-radius: 25px;
+  background-color: #60002E;
+  padding: 20px;
+}
+
+/* info of secondary importance need not be placed within a box */
+body {
+font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+text-align: center;
+}
+
+.error{
+color: red;
+}
