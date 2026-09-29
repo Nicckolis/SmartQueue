@@ -1,0 +1,93 @@
+.queue-container
+{
+    max-width: 500px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+/* The team's styles.css supplies the burgundy background. */
+#join-queue-form {
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+}
+
+/* Dropdown and estimated wait beside each other. */
+.queue-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 20px;
+}
+
+.queue-fields label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-control {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #cdbdc7;
+  border-radius: 8px;
+  background-color: white;
+  color: #282026;
+  font: inherit;
+}
+
+.wait-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#estimated-wait {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+}
+
+/* Two equally sized buttons. */
+.queue-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn {
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid white;
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: white;
+  color: #60002E;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: white;
+}
+
+.btn:not(:disabled):hover {
+  background-color: #f3e7ed;
+  color: #60002E;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#queue-message {
+  min-height: 1.5em;
+  margin: 16px 0 0;
+}
+
+

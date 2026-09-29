@@ -1,0 +1,29 @@
+
+.dashboard
+{
+    max-width: 800px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+.dashboard .queue-panel
+{
+    background-color: #60002E;
+    color: white;
+    border-radius: 25px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.dashboard .queue-panel h3
+{
+    margin-top: 0;
+}
+.dashboard .queue-panel ul
+{
+    text-align: left;
+}
+.dashboard .queue-panel a
+{
+    color: white;
+}

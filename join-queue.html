@@ -4,19 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QueueSmart - Join Queue</title>
-  
-  <!-- Link your CSS files here -->
-  <link rel="stylesheet" href="global.css">
+
+  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="join-queue.css">
   
-  <!-- Link your JS file with 'defer' so it loads after the HTML -->
   <script src="queue-logic.js" defer></script>
 </head>
 
 <body>
-  <header class="global-header">
-    <h1>QueueSmart</h1>
-    <nav class="global-nav">
+  <header>
+    <h1>Queue<span class="smart">Smart</span></h1>
+
+    <nav>
       <a href="dashboard.html">Dashboard</a>
       <a href="join-queue.html">Join a queue</a>
     </nav>
@@ -26,30 +25,35 @@
     <h2>Join a queue</h2>
 
     <form id="join-queue-form">
-      <label for="service">Select a service (required):</label>
+      <div class="queue-fields">
+        <div>
+          <label for="service">Select a service (required):</label>
 
-      <!-- Added a form-control class for standardized input styling -->
-      <select id="service" name="service" class="form-control" required>
-        <option value="">Choose a service</option>
-        <option value="service-1">Service 1</option>
-        <option value="service-2">Service 2</option>
-      </select>
+          <select id="service" name="service" class="form-control" required>
+            <option value="">Choose a service</option>
+            <option value="service-1">Prescription Pickup</option>
+            <option value="service-2">Consultation</option>
+          </select>
+        </div>
 
-      <p>
-        Estimated wait:
-        <span id="estimated-wait">Select a service first</span>
-      </p>
+        <div class="wait-summary">
+          <span>Estimated wait</span>
+          <span id="estimated-wait">-</span>
+        </div>
+      </div>
 
-      <!-- Added btn and btn-primary classes for shared button styles -->
-      <button type="submit" class="btn btn-primary">Join queue</button>
+      <div class="queue-actions">
+        <button type="submit" id="join-queue" class="btn btn-primary">
+          Join queue
+        </button>
+
+        <button type="button" id="leave-queue" class="btn btn-secondary" disabled>
+          Leave queue
+        </button>
+      </div>
+
+      <p id="queue-message" role="status"></p>
     </form>
-
-    <!-- Added btn and btn-secondary classes -->
-    <button type="button" id="leave-queue" class="btn btn-secondary" disabled>
-      Leave queue
-    </button>
-
-    <p id="queue-message" role="status"></p>
   </main>
 </body>
 </html>
