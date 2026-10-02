@@ -1,0 +1,95 @@
+/* Queue Status screen
+   Relies on shared global.css for h1/h2/h3/body/.error.
+   Status card follows the team's "box" convention (rounded, dark maroon,
+   white text) used for forms, so important info stays visually consistent. */
+
+.status-container {
+  max-width: 480px;
+  margin: 2.5rem auto;
+  padding: 0 1.25rem;
+}
+
+.status-card {
+  color: white;
+  border-radius: 25px;
+  background-color: #60002E;
+  padding: 20px;
+}
+
+.status-service {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+.status-badge-row {
+  margin-bottom: 1.5rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: #ffffff;
+  color: #60002E;
+}
+
+.status-badge[data-status="waiting"] {
+  background: #ffffff;
+  color: #60002E;
+}
+
+.status-badge[data-status="almost-ready"] {
+  background: #C106D6;
+  color: white;
+}
+
+.status-badge[data-status="served"] {
+  background: #999999;
+  color: white;
+}
+
+.status-metrics {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.status-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.status-metric-label {
+  font-size: 0.8rem;
+  margin-top: 0.15rem;
+}
+
+.status-note {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+#leave-queue {
+  margin-top: 1.25rem;
+}
+
+/* .btn-secondary is transparent + white text by design, so it needs a
+   dark background behind it — give it a hairline border here since it's
+   not sitting on the burgundy <form> background the shared style assumes. */
+.status-card #leave-queue {
+  border-color: white;
+}
+
+#status-message {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}

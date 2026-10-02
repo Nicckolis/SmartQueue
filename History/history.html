@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueSmart - History</title>
+
+  <!-- Link your CSS files here -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="history.css">
+  <link rel="stylesheet" href="notifications.css">
+
+  <!-- notifications.js must load before any page script that calls showNotification() -->
+  <script src="notifications.js" defer></script>
+  <script src="history-logic.js" defer></script>
+</head>
+
+<body>
+  <header class="global-header">
+    <h1>Queue<span class="smart">Smart</span></h1>
+    <nav class="global-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="join-queue.html">Join a queue</a>
+      <a href="queue-status.html">Queue status</a>
+      <a href="history.html">History</a>
+    </nav>
+  </header>
+
+  <main class="history-container">
+    <h2>Your queue history</h2>
+
+    <label for="history-filter">Filter by service:</label>
+    <select id="history-filter" class="form-control">
+      <option value="all">All services</option>
+      <option value="Prescription Pickup">Prescription Pickup</option>
+      <option value="New Prescription Fill">New Prescription Fill</option>
+      <option value="Vaccine / Injection">Vaccine / Injection</option>
+      <option value="Pharmacist Consultation">Pharmacist Consultation</option>
+    </select>
+
+    <ul class="history-list" id="history-list">
+      <!-- JS populates history entries here -->
+    </ul>
+
+    <p class="history-empty" id="history-empty" hidden>
+      No visits match this filter yet.
+    </p>
+  </main>
+</body>
+</html>

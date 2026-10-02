@@ -1,0 +1,74 @@
+/* Shared in-app notification component.
+   Works alongside styles.css — uses the same palette (burgundy, white,
+   magenta accent) so a toast never looks like it's from a different app. */
+
+#notification-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+}
+
+.notification {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background-color: #60002E;
+  color: white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  text-align: left;
+  animation: notification-in 0.18s ease-out;
+}
+
+.notification[data-type="success"] {
+  background-color: #C106D6;
+}
+
+.notification[data-type="warning"] {
+  background-color: #363636;
+}
+
+.notification-message {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.notification-close {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.notification-hide {
+  animation: notification-out 0.2s ease-in forwards;
+}
+
+@keyframes notification-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notification-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
