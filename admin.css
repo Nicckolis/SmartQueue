@@ -1,0 +1,80 @@
+.admin-box {
+    background-color: #60002E;
+    color: white;
+    border-radius: 25px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+nav a {
+    display: inline-block;
+    margin: 5px 10px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    margin-top: 15px;
+}
+
+th,
+td {
+    padding: 10px;
+    text-align: center;
+}
+
+button {
+    padding: 6px 10px;
+    margin: 4px;
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+#service-form label {
+    display: block;
+    margin-top: 15px;
+}
+
+#service-form input,
+#service-form textarea,
+#service-form select {
+    display: block;
+    box-sizing: border-box;
+    width: 90%;
+    max-width: 400px;
+    margin: 5px auto;
+    padding: 8px;
+    font: inherit;
+}
+
+#service-form button {
+    margin-top: 20px;
+}
+
+#service-list {
+    text-align: left;
+}
+
+#service-list li {
+    margin-bottom: 20px;
+    overflow-wrap: anywhere;
+}
+
+#queue-service {
+    max-width: 100%;
+    padding: 8px;
+    margin: 10px;
+    font: inherit;
+}
+
+#message {
+    padding: 0 10px;
+}

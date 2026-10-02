@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueueSmart - Service Management</title>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <script src="admin.js" defer></script>
+</head>
+<body>
+    <h1>Queue<span class="smart">Smart</span></h1>
+    <h2>Service Management</h2>
+
+    <nav>
+        <a href="admin-dashboard.html">Admin Dashboard</a>
+        <a href="service-management.html">Service Management</a>
+        <a href="queue-management.html">Queue Management</a>
+    </nav>
+
+    <p id="message" role="status"></p>
+
+    <form id="service-form" class="admin-box">
+        <h3 id="form-title">Create Service</h3>
+
+        <label for="service-name">Service Name:</label>
+        <input type="text" id="service-name"
+               maxlength="100" required>
+
+        <label for="service-description">Description:</label>
+        <textarea id="service-description" required></textarea>
+
+        <label for="service-duration">
+            Expected Duration (minutes):
+        </label>
+        <input type="number" id="service-duration"
+               min="1" step="1" required>
+
+        <label for="service-priority">Priority Level:</label>
+        <select id="service-priority" required>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+
+        <button type="submit" id="save-service">
+            Create Service
+        </button>
+
+        <button type="button" id="cancel-edit" hidden>
+            Cancel Edit
+        </button>
+    </form>
+
+    <section class="admin-box">
+        <h3>Services</h3>
+        <ul id="service-list"></ul>
+    </section>
+</body>
+</html>

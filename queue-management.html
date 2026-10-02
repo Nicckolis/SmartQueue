@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueueSmart - Queue Management</title>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <script src="admin.js" defer></script>
+</head>
+<body>
+    <h1>Queue<span class="smart">Smart</span></h1>
+    <h2>Queue Management</h2>
+
+    <nav>
+        <a href="admin-dashboard.html">Admin Dashboard</a>
+        <a href="service-management.html">Service Management</a>
+        <a href="queue-management.html">Queue Management</a>
+    </nav>
+
+    <p id="message" role="status"></p>
+
+    <section class="admin-box">
+        <label for="queue-service">Select a Service:</label>
+        <select id="queue-service"></select>
+
+        <p id="queue-status"></p>
+
+        <button type="button" id="serve-next">
+            Serve Next User
+        </button>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Name</th>
+                        <th>Estimated Wait</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="queue-list"></tbody>
+            </table>
+        </div>
+
+        <p id="empty-queue" hidden>No users are waiting.</p>
+    </section>
+</body>
+</html>
