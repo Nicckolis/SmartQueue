@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueueSmart - User Management</title>
+
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <script src="../auth.js" defer></script>
+    <script src="user-management.js" defer></script>
+</head>
+<body>
+    <h1>Queue<span class="smart">Smart</span></h1>
+    <h2>User Management</h2>
+
+    <nav>
+        <a href="admin-dashboard.html">Admin Dashboard</a>
+        <a href="../ServiceManagement/service-management.html">Service Management</a>
+        <a href="queue-management.html">Queue Management</a>
+        <a href="user-management.html">User Management</a>
+    </nav>
+
+    <p id="userManageError"></p>
+
+    <template id="user-card">
+        <section class="user">
+            <h3 class="username"></h3>
+            <p>Role: <span class="role"></span></p>
+            <div class="actions">
+                <button type="button" data-action="delete">Delete</button>
+                <button type="button" data-action="promote">Promote to Admin</button>
+                <button type="button" data-action="demote">Demote to User</button>
+            </div>
+        </section>
+    </template>
+
+
+    <section id="user-box" class ="user-box">
+        
+    </section>
+
+</body>
