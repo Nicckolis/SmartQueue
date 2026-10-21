@@ -1,4 +1,4 @@
-class AccountManager {
+/*class AccountManager {
   #storageKey = "accounts";
 
   #load() {
@@ -23,7 +23,7 @@ class AccountManager {
   hasAccount(username) {
   	return this.#load().has(username);
   }
-}
+}*/
 
 function ConfirmPassword(password, rpassword) {
 	if(password == rpassword)
@@ -41,7 +41,7 @@ function CheckEmail(email, emails) {
   	return emails.includes(domain);
 }	
 
-const accountStorage = new AccountManager();
+/*const accountStorage = new AccountManager(); */
 
 const emails = [
     "gmail.com",
@@ -146,58 +146,73 @@ const emails = [
     "bigpond.net.au"
 ]
 
-function onSignup(event) {
-event.preventDefault();
-const signEmail = document.getElementById("signemail").value;
-const signPassword = document.getElementById("spassword").value;
-const signRPassword = document.getElementById("srpassword").value;
-const errorElement = document.getElementById("signError");
+function onSignup(event) 
+{
+  event.preventDefault();
+  const signEmail = document.getElementById("signemail").value;
+  const signPassword = document.getElementById("spassword").value;
+  const signRPassword = document.getElementById("srpassword").value;
+  const errorElement = document.getElementById("signError");
 
-errorElement.textContent = "";
-if (!signEmail.trim() || !signPassword || !signRPassword) return errorElement.textContent = "Please fill in all fields.";
-const correctEmail = CheckEmail(signEmail, emails);
-const matchPassword = ConfirmPassword(signPassword, signRPassword);
+  errorElement.textContent = "";
+  if (!signEmail.trim() || !signPassword || !signRPassword) return errorElement.textContent = "Please fill in all fields.";
+  const correctEmail = CheckEmail(signEmail, emails);
+  const matchPassword = ConfirmPassword(signPassword, signRPassword);
 
-if (!correctEmail && !matchPassword) {
-	errorElement.textContent = "Invalid email and passwords do not match.";
-} 
+  if (!correctEmail && !matchPassword)
+  {
+    errorElement.textContent = "Invalid email and passwords do not match.";
+  } 
 
-else if (!correctEmail) {
-	errorElement.textContent = "Please input a valid email.";
-} 
-  
-else if (!matchPassword) {
-	errorElement.textContent = "Passwords do not match.";  
-}
+  else if (!correctEmail)
+  {
+    errorElement.textContent = "Please input a valid email.";
+  } 
+    
+  else if (!matchPassword) 
+  {
+    errorElement.textContent = "Passwords do not match.";  
+  }
 
-else if (accountStorage.hasAccount(signEmail)) {
-	errorElement.innerHTML = `An account with this email already exists, try <a href="queue-login.html">loging in instead</a>`;
-} 
-  
-else {
-	accountStorage.setAccount(signEmail, signPassword);
-	sessionStorage.setItem("accountCreated", "Account Created!");
-  	window.location.href = "queue-login.html";
-}
+  else if (accountStorage.hasAccount(signEmail)) 
+  {
+    errorElement.innerHTML = `An account with this email already exists, try <a href="queue-login.html">loging in instead</a>`;
+  } 
+    
+  else 
+  {
+    accountStorage.setAccount(signEmail, signPassword);
+    sessionStorage.setItem("accountCreated", "Account Created!");
+    window.location.href = "queue-login.html";
+  }
 }
 
 function onLogin(event) {
-event.preventDefault();
-const logEmail = document.getElementById("logemail").value;
-const logPassword = document.getElementById("lpassword").value;
-const errorElement = document.getElementById("logError");
+  event.preventDefault();
+  const logEmail = document.getElementById("logemail").value;
+  const logPassword = document.getElementById("lpassword").value;
+  const errorElement = document.getElementById("logError");
 
-errorElement.textContent = "";
-if (!logEmail.trim() || !logPassword) return errorElement.textContent = "Please fill in all fields.";
-const correctLogin = accountStorage.checkAccount(logEmail, logPassword);
+  errorElement.textContent = "";
+  if (!logEmail.trim() || !logPassword) return errorElement.textContent = "Please fill in all fields.";
+  const correctLogin = accountStorage.checkAccount(logEmail, logPassword);
 
-if(!correctLogin)
-{
-errorElement.innerHTML = `Incorrect Login, if this is your first time, <a href="queue-signup.html"> Make an account</a>`;
-}
-else{
-window.location.href = "dashboard.html"
-}
+  if(!correctLogin)
+  {
+    errorElement.innerHTML = `Incorrect Login, if this is your first time, <a href="queue-signup.html"> Make an account</a>`;
+  }
+
+  if(accountStorage.isAdmin(logEmail))
+  {
+    accountStorage.setCurrentUser(logEmail)
+    window.location.href = "../Admin/admin-dashboard.html"
+  }
+
+  else
+  {
+    accountStorage.setCurrentUser(logEmail);
+    window.location.href = "../UserDashboard/dashboard.html"
+  }
 }
 
 document.getElementById("signupForm")?.addEventListener("submit", onSignup)
