@@ -7,6 +7,12 @@ import {
 } from "../Backend/queue-helpers.js";
 
 import {
+    STORE_STORAGE_KEY,
+    loadStore,
+    saveStore
+} from "../Backend/shared-store.js";
+
+import {
     recordJoin,
     completeEntry
 } from "../Kaylee Backend/history-actions.js";
@@ -23,7 +29,6 @@ import {
 } from "../Kaylee Backend/queue-status-actions.js";
 
 
-const STORE_STORAGE_KEY = "queueSmart.store";
 const QUEUE_STORAGE_KEY = "queueSmart.currentQueue";
 
 const serviceSelect = document.getElementById("service");
@@ -62,207 +67,6 @@ function showError(error)
     notify(message, "warning");
     console.error(error);
 }
-
-
-// Sample data is used only when no shared store exists.
-// All services initially have medium priority.
-function createDefaultStore()
-{
-    return {
-        services: [
-            {
-                id: "service-1",
-                name: "Prescription Pickup",
-                description: "Pick up a prepared prescription.",
-                expectedDuration: 5,
-                priority: "medium",
-                isOpen: true
-            },
-            {
-                id: "service-2",
-                name: "New Prescription Fill",
-                description: "Request a new prescription fill.",
-                expectedDuration: 15,
-                priority: "medium",
-                isOpen: true
-            },
-            {
-                id: "service-3",
-                name: "Vaccine / Injection",
-                description: "Visit the vaccine and injection service.",
-                expectedDuration: 20,
-                priority: "medium",
-                isOpen: true
-            },
-            {
-                id: "service-4",
-                name: "Pharmacist Consultation",
-                description: "Speak with a pharmacist.",
-                expectedDuration: 10,
-                priority: "medium",
-                isOpen: true
-            }
-        ],
-
-        queueEntries: [],
-        nextArrivalOrder: 1,
-
-        history: [],
-        nextHistoryId: 1,
-
-        notifications: [],
-        nextNotificationId: 1
-    };
-}
-
-function saveStore(store)
-{
-    localStorage.setItem(
-        STORE_STORAGE_KEY,
-        JSON.stringify(store)
-    );
-}
-
-
-// Keep counters ahead of existing entries when loading older data.
-function repairCounter(store, counterName, items, fieldName)
-{
-    let largest = 0;
-
-    for (const item of items)
-    {
-        const value = item?.[fieldName];
-
-        if (!Number.isSafeInteger(value) ||
-            value < 1 ||
-            value >= Number.MAX_SAFE_INTEGER)
-        {
-            throw new Error(
-                "Saved queue data contains an invalid " + fieldName + "."
-            );
-        }
-
-        largest = Math.max(largest, value);
-    }
-
-    if (!Number.isSafeInteger(store[counterName]) ||
-        store[counterName] <= largest)
-    {
-        store[counterName] = largest + 1;
-    }
-}
-
-function loadStore()
-{
-    const saved = localStorage.getItem(STORE_STORAGE_KEY);
-
-    if (saved === null)
-    {
-        const store = createDefaultStore();
-        saveStore(store);
-        return store;
-    }
-
-    // Report invalid data without overwriting it with sample data.
-    const store = JSON.parse(saved);
-
-    if (!store ||
-        !Array.isArray(store.services) ||
-        !Array.isArray(store.queueEntries))
-    {
-        throw new Error("The saved queue store has an invalid format.");
-    }
-
-    const before = JSON.stringify(store);
-
-    // Preserve any priority that an administrator already assigned.
-    for (const service of store.services)
-    {
-        if (!service)
-        {
-            throw new Error("A saved service is invalid.");
-        }
-
-        if (service.priority === undefined)
-        {
-            service.priority = "medium";
-        }
-    }
-
-    store.history ??= [];
-    store.notifications ??= [];
-
-    if (!Array.isArray(store.history) ||
-        !Array.isArray(store.notifications))
-    {
-        throw new Error(
-            "Saved history or notifications have an invalid format."
-        );
-    }
-
-    repairCounter(
-        store, "nextArrivalOrder", store.queueEntries, "arrivalOrder"
-    );
-
-    repairCounter(
-        store, "nextHistoryId", store.history, "id"
-    );
-
-    repairCounter(
-        store, "nextNotificationId", store.notifications, "id"
-    );
-
-    // Older queue entries may have been created before history was added.
-    const orderedQueue = getOrderedQueue(
-        store.queueEntries,
-        store.services
-    );
-
-    for (const entry of orderedQueue)
-    {
-        const visit = store.history.find(
-            item =>
-                item.userId === entry.userId &&
-                item.outcome === "waiting"
-        );
-
-        if (visit && visit.serviceId !== entry.serviceId)
-        {
-            throw new Error(
-                "The saved queue and active history do not match."
-            );
-        }
-
-        if (!visit)
-        {
-            const service = store.services.find(
-                item => item.id === entry.serviceId
-            );
-
-            const restored = recordJoin(
-                store,
-                entry.userId,
-                service.id,
-                service.name
-            );
-
-            if (Number.isFinite(entry.joinedAt) && entry.joinedAt >= 0)
-            {
-                store.history.find(
-                    item => item.id === restored.id
-                ).joinedAt = entry.joinedAt;
-            }
-        }
-    }
-
-    if (JSON.stringify(store) !== before)
-    {
-        saveStore(store);
-    }
-
-    return store;
-}
-
 
 // accountStorage is supplied by auth.js.
 function getCurrentUserId()
