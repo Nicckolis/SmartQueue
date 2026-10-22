@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QueueSmart - Queue Management</title>
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="admin.css">
+    <script src="../auth.js" defer></script>
     <script src="admin.js" defer></script>
 </head>
 <body>
@@ -15,8 +16,9 @@
 
     <nav>
         <a href="admin-dashboard.html">Admin Dashboard</a>
-        <a href="service-management.html">Service Management</a>
+        <a href="../ServiceManagement/service-management.html">Service Management</a>
         <a href="queue-management.html">Queue Management</a>
+        <a href="user-management.html">User Management</a>
     </nav>
 
     <p id="message" role="status"></p>
@@ -48,5 +50,6 @@
 
         <p id="empty-queue" hidden>No users are waiting.</p>
     </section>
+    <a href="../logout.html">Logout</a>
 </body>
 </html>

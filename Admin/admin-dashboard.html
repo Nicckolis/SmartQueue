@@ -5,18 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QueueSmart - Admin Dashboard</title>
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="admin.css">
+    <script src="../auth.js" defer></script>
     <script src="admin.js" defer></script>
 </head>
+
+
+
 <body>
     <h1>Queue<span class="smart">Smart</span></h1>
     <h2>Admin Dashboard</h2>
 
     <nav>
         <a href="admin-dashboard.html">Admin Dashboard</a>
-        <a href="service-management.html">Service Management</a>
+        <a href="../ServiceManagement/service-management.html">Service Management</a>
         <a href="queue-management.html">Queue Management</a>
+        <a href="user-management.html">User Management</a>
     </nav>
 
     <p id="message" role="status"></p>
@@ -40,4 +45,7 @@
         </div>
     </section>
 </body>
+
+<a href="../logout.html">Logout</a>
+
 </html>

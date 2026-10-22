@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QueueSmart - Service Management</title>
 
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="admin.css">
-    <script src="admin.js" defer></script>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../Admin/admin.css">
+    <script src="../auth.js" defer></script>
+    <script src="../Admin/admin.js" defer></script>
 </head>
 <body>
     <h1>Queue<span class="smart">Smart</span></h1>
     <h2>Service Management</h2>
 
     <nav>
-        <a href="admin-dashboard.html">Admin Dashboard</a>
-        <a href="service-management.html">Service Management</a>
-        <a href="queue-management.html">Queue Management</a>
-    </nav>
+    <a href="../Admin/admin-dashboard.html">Admin Dashboard</a>
+    <a href="service-management.html">Service Management</a>
+    <a href="../Admin/queue-management.html">Queue Management</a>
+    <a href="../Admin/user-management.html">User Management</a>
+</nav>
 
     <p id="message" role="status"></p>
 
@@ -57,5 +59,6 @@
         <h3>Services</h3>
         <ul id="service-list"></ul>
     </section>
+    <a href="../logout.html">Logout</a>
 </body>
 </html>
