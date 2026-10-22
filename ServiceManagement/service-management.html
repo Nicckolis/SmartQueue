@@ -7,8 +7,8 @@
 
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../Admin/admin.css">
-    <script src="../auth.js" defer></script>
-    <script src="../Admin/admin.js" defer></script>
+    <script src="../auth.js"></script>
+    <script type="module" src="service-management.js"></script>
 </head>
 <body>
     <h1>Queue<span class="smart">Smart</span></h1>
@@ -31,7 +31,7 @@
                maxlength="100" required>
 
         <label for="service-description">Description:</label>
-        <textarea id="service-description" required></textarea>
+        <textarea id="service-description" maxlength="1000" required></textarea>
 
         <label for="service-duration">
             Expected Duration (minutes):
