@@ -1,92 +1,152 @@
-const services =
-{
-    "service-1":
-    {
-        name: "Prescription Pickup", durationMinutes: 3
-    },
-    "service-2":
-    {
-        name: "Consultation", durationMinutes: 15
-    }
-};
-
-function estimateWait(serviceId, peopleAhead)
-{
-    return peopleAhead * services[serviceId].durationMinutes;
-}
-
-// Temporary sample numbers of people ahead in each queue.
-const mockPeopleAhead = {
-    "service-1": 3,
-    "service-2": 2
-};
-
-const serviceSelect = document.getElementById("service");
-const waitDisplay = document.getElementById("estimated-wait");
-
-function updateEstimatedWait()
-{
-    const serviceId = serviceSelect.value;
-
-    // No service selected.
-    if (!services[serviceId])
-    {
-        waitDisplay.textContent = "—";
-        return;
-    }
-
-    const minutes = estimateWait(
-        serviceId,
-        mockPeopleAhead[serviceId]
-    );
-
-    waitDisplay.textContent = minutes + " minutes";
-}
-
-// Only run this on a page containing these elements.
-if (serviceSelect && waitDisplay)
-{
-    serviceSelect.addEventListener("change", updateEstimatedWait);
-    updateEstimatedWait();
-}
-
-const joinForm = document.getElementById("join-queue-form");
-const joinButton = document.getElementById("join-queue");
-const leaveButton = document.getElementById("leave-queue");
-const queueMessage = document.getElementById("queue-message");
+import { joinQueue, leaveQueue } from "../Backend/queue-actions.js";
+import {
+    getOrderedQueue,
+    getQueuePosition,
+    estimateWait
+} from "../Backend/queue-helpers.js";
 
 
+// ---------- Shared store, saved in localStorage ----------
+
+const STORE_STORAGE_KEY = "queueSmart.store";
 const QUEUE_STORAGE_KEY = "queueSmart.currentQueue";
 
-function loadQueue()
+function createDefaultStore()
+{
+    return {
+        services: [
+            {
+                id: "service-1",
+                name: "Prescription Pickup",
+                expectedDuration: 3,
+                isOpen: true
+            },
+            {
+                id: "service-2",
+                name: "Consultation",
+                expectedDuration: 15,
+                isOpen: true
+            }
+        ],
+        queueEntries: [],
+        nextArrivalOrder: 1
+    };
+}
+
+function loadStore()
 {
     try
     {
-        const savedData = localStorage.getItem(QUEUE_STORAGE_KEY);
+        const savedData = localStorage.getItem(STORE_STORAGE_KEY);
 
         if (savedData === null)
         {
-            return null;
+            return createDefaultStore();
         }
 
-        const savedQueue = JSON.parse(savedData);
+        const store = JSON.parse(savedData);
 
-        // Only restore a queue for a service we recognize.
-        if (!savedQueue || !services[savedQueue.serviceId])
+        if (!store ||
+            !Array.isArray(store.services) ||
+            !Array.isArray(store.queueEntries))
         {
-            return null;
+            return createDefaultStore();
         }
 
-        return savedQueue;
+        return store;
     }
     catch
     {
-        // Start without a queue if the saved data cannot be read.
-        return null;
+        // Start fresh if the saved data cannot be read.
+        return createDefaultStore();
     }
 }
 
-function saveQueue()
+function saveStore(store)
+{
+    localStorage.setItem(STORE_STORAGE_KEY, JSON.stringify(store));
+}
+
+function getCurrentUserId()
+{
+    // TODO: return the logged-in user's id from the team's auth code.
+    // "demo-user" is only here so the page runs while you test.
+    return "demo-user";
+}
+
+
+// ---------- Calculations from the store ----------
+
+// The signed-in user's current queue, recalculated from the store
+// so position and wait are never out of date.
+function getCurrentQueue(store, userId)
+{
+    const entry = store.queueEntries.find(
+        item => item.userId === userId
+    );
+
+    if (!entry)
+    {
+        return null;
+    }
+
+    const service = store.services.find(
+        item => item.id === entry.serviceId
+    );
+
+    if (!service)
+    {
+        return null;
+    }
+
+    const orderedQueue = getOrderedQueue(
+        store.queueEntries,
+        entry.serviceId
+    );
+
+    const position = getQueuePosition(orderedQueue, userId);
+
+    return {
+        entryId: entry.id,
+        serviceId: service.id,
+        serviceName: service.name,
+        status: "Waiting",
+        position: position,
+        waitMinutes: estimateWait(position, service.expectedDuration)
+    };
+}
+
+// Wait a new medium-priority arrival would get right now.
+function previewWait(store, serviceId)
+{
+    const service = store.services.find(
+        item => item.id === serviceId
+    );
+
+    if (!service)
+    {
+        return null;
+    }
+
+    const previewEntry = {
+        userId: "__preview__",
+        serviceId: serviceId,
+        priorityLevel: "medium",
+        arrivalOrder: store.nextArrivalOrder
+    };
+
+    const orderedQueue = getOrderedQueue(
+        [...store.queueEntries, previewEntry],
+        serviceId
+    );
+
+    const position = getQueuePosition(orderedQueue, "__preview__");
+
+    return estimateWait(position, service.expectedDuration);
+}
+
+// Keeps the old saved-queue key up to date for any page that reads it.
+function syncQueueSnapshot(currentQueue)
 {
     if (currentQueue === null)
     {
@@ -101,43 +161,60 @@ function saveQueue()
     }
 }
 
-let currentQueue = loadQueue();
+
+// ---------- Page elements ----------
+
+const serviceSelect = document.getElementById("service");
+const waitDisplay = document.getElementById("estimated-wait");
+const joinForm = document.getElementById("join-queue-form");
+const joinButton = document.getElementById("join-queue");
+const leaveButton = document.getElementById("leave-queue");
+const queueMessage = document.getElementById("queue-message");
+
+function updateEstimatedWait()
+{
+    const minutes = previewWait(loadStore(), serviceSelect.value);
+
+    waitDisplay.textContent =
+        minutes === null ? "—" : minutes + " minutes";
+}
+
+// Only run this on a page containing these elements.
+if (serviceSelect && waitDisplay)
+{
+    serviceSelect.addEventListener("change", updateEstimatedWait);
+    updateEstimatedWait();
+}
 
 
-function joinQueue(event)
+// ---------- Join and leave handlers ----------
+
+function handleJoin(event)
 {
     // Keep the form from reloading the page.
     event.preventDefault();
 
-    // Prevent joining a second queue.
-    if (currentQueue !== null)
+    const store = loadStore();
+    const userId = getCurrentUserId();
+
+    try
     {
-        queueMessage.textContent =
-            "Please leave your current queue before joining another.";
+        joinQueue(store, userId, serviceSelect.value);
+    }
+    catch (error)
+    {
+        // joinQueue throws before changing the store, so nothing to save.
+        queueMessage.textContent = error.message;
         return;
     }
 
-    const serviceId = serviceSelect.value;
-    const selectedService = services[serviceId];
+    saveStore(store);
 
-    if (!selectedService)
-    {
-        queueMessage.textContent = "Please select a service.";
-        return;
-    }
-
-    const peopleAhead = mockPeopleAhead[serviceId];
-
-    currentQueue = {
-        serviceId: serviceId,
-        status: "Waiting",
-        position: peopleAhead + 1,
-        waitMinutes: estimateWait(serviceId, peopleAhead)
-    };
-    saveQueue();
+    const currentQueue = getCurrentQueue(store, userId);
+    syncQueueSnapshot(currentQueue);
 
     queueMessage.textContent =
-        `You joined the ${selectedService.name} queue. ` +
+        `You joined the ${currentQueue.serviceName} queue. ` +
         `Position: ${currentQueue.position}. ` +
         `Estimated wait: ${currentQueue.waitMinutes} minutes.`;
 
@@ -149,45 +226,64 @@ function joinQueue(event)
     leaveButton.disabled = false;
 }
 
-function leaveQueue()
+function handleLeave()
 {
-    if (currentQueue === null)
+    const store = loadStore();
+    let result;
+
+    try
+    {
+        result = leaveQueue(store, getCurrentUserId());
+    }
+    catch (error)
+    {
+        queueMessage.textContent = error.message;
+        return;
+    }
+
+    // The user was not in a queue.
+    if (result.entry === null)
     {
         return;
     }
 
-    // Remember the name before clearing the queue.
-    const serviceName = services[currentQueue.serviceId].name;
+    saveStore(store);
+    syncQueueSnapshot(null);
 
-    currentQueue = null;
-
-    saveQueue();
+    const service = store.services.find(
+        item => item.id === result.entry.serviceId
+    );
+    const serviceName = service ? service.name + " " : "";
 
     serviceSelect.disabled = false;
     joinButton.disabled = false;
     leaveButton.disabled = true;
 
-    queueMessage.textContent =
-        `You left the ${serviceName} queue.`;
+    queueMessage.textContent = `You left the ${serviceName}queue.`;
 
     addNotification(queueMessage.textContent);
+    updateEstimatedWait();
 }
 
 // Only attach these handlers on the Join Queue page.
 if (joinForm && joinButton && leaveButton &&
     queueMessage && serviceSelect)
 {
-    joinForm.addEventListener("submit", joinQueue);
-    leaveButton.addEventListener("click", leaveQueue);
+    joinForm.addEventListener("submit", handleJoin);
+    leaveButton.addEventListener("click", handleLeave);
 }
 
-// restores the Join page's controls
-// fills the Dashboard's existing spans
+
+// ---------- Redraw the pages from the store ----------
+
+// Restores the Join page's controls and fills the Dashboard's spans.
 function refreshQueueDisplay()
 {
-    currentQueue = loadQueue();
+    const store = loadStore();
+    const currentQueue = getCurrentQueue(store, getCurrentUserId());
 
-    renderAvailableServices();
+    syncQueueSnapshot(currentQueue);
+    renderAvailableServices(store);
     renderNotifications();
 
     // Restore the Join Queue page.
@@ -208,7 +304,7 @@ function refreshQueueDisplay()
                 currentQueue.waitMinutes + " minutes";
 
             queueMessage.textContent =
-                `You are in the ${services[currentQueue.serviceId].name} queue. ` +
+                `You are in the ${currentQueue.serviceName} queue. ` +
                 `Position: ${currentQueue.position}. ` +
                 `Estimated wait: ${currentQueue.waitMinutes} minutes.`;
         }
@@ -241,12 +337,9 @@ function refreshQueueDisplay()
     }
     else
     {
-        serviceDisplay.textContent =
-            services[currentQueue.serviceId].name;
-
+        serviceDisplay.textContent = currentQueue.serviceName;
         statusDisplay.textContent = currentQueue.status;
         positionDisplay.textContent = currentQueue.position;
-
         currentWaitDisplay.textContent =
             currentQueue.waitMinutes + " minutes";
     }
@@ -255,7 +348,7 @@ function refreshQueueDisplay()
 // Also refresh when returning through the browser's Back button.
 window.addEventListener("pageshow", refreshQueueDisplay);
 
-function renderAvailableServices()
+function renderAvailableServices(store)
 {
     const list = document.getElementById("available-services-list");
 
@@ -267,18 +360,14 @@ function renderAvailableServices()
     // Remove placeholders or previously displayed items.
     list.textContent = "";
 
-    for (const serviceId in services)
+    for (const service of store.services)
     {
-        const service = services[serviceId];
-        const minutes = estimateWait(
-            serviceId,
-            mockPeopleAhead[serviceId]
-        );
-
         const item = document.createElement("li");
 
-        item.textContent =
-            `${service.name} — estimated wait: ${minutes} minutes`;
+        item.textContent = service.isOpen
+            ? `${service.name} — estimated wait: ` +
+              `${previewWait(store, service.id)} minutes`
+            : `${service.name} — closed`;
 
         list.appendChild(item);
     }
