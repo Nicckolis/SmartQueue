@@ -99,9 +99,13 @@ function saveStore(store)
 
 function getCurrentUserId()
 {
-    // TODO: return the logged-in user's id from the team's auth code.
-    // "demo-user" is only here so the page runs while you test.
-    return "demo-user";
+    // accountStorage is created by auth.js, which must load first.
+    if (typeof accountStorage === "undefined")
+    {
+        return null;
+    }
+
+    return accountStorage.getCurrentUser();
 }
 
 
