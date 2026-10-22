@@ -5,6 +5,14 @@ import {
     estimateWait
 } from "../Backend/queue-helpers.js";
 
+// Shows the shared popup if notifications.js loaded.
+function notify(message, type)
+{
+    if (typeof window.showNotification === "function")
+    {
+        window.showNotification(message, type);
+    }
+}
 
 // ---------- Shared store, saved in localStorage ----------
 
@@ -205,6 +213,7 @@ function handleJoin(event)
     {
         // joinQueue throws before changing the store, so nothing to save.
         queueMessage.textContent = error.message;
+        notify(error.message, "warning");
         return;
     }
 
@@ -219,6 +228,7 @@ function handleJoin(event)
         `Estimated wait: ${currentQueue.waitMinutes} minutes.`;
 
     addNotification(queueMessage.textContent);
+    notify(queueMessage.textContent, "success");
 
     // Keep the selected service fixed while joined.
     serviceSelect.disabled = true;
@@ -238,6 +248,7 @@ function handleLeave()
     catch (error)
     {
         queueMessage.textContent = error.message;
+        notify(error.message, "warning");
         return;
     }
 
@@ -262,6 +273,8 @@ function handleLeave()
     queueMessage.textContent = `You left the ${serviceName}queue.`;
 
     addNotification(queueMessage.textContent);
+    notify(queueMessage.textContent, "info");
+
     updateEstimatedWait();
 }
 
