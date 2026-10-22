@@ -26,13 +26,25 @@ function createDefaultStore()
             {
                 id: "service-1",
                 name: "Prescription Pickup",
-                expectedDuration: 3,
+                expectedDuration: 5,
                 isOpen: true
             },
             {
                 id: "service-2",
-                name: "Consultation",
+                name: "New Prescription Fill",
                 expectedDuration: 15,
+                isOpen: true
+            },
+            {
+                id: "service-3",
+                name: "Vaccine / Injection",
+                expectedDuration: 20,
+                isOpen: true
+            },
+            {
+                id: "service-4",
+                name: "Pharmacist Consultation",
+                expectedDuration: 10,
                 isOpen: true
             }
         ],
@@ -59,6 +71,16 @@ function loadStore()
             !Array.isArray(store.queueEntries))
         {
             return createDefaultStore();
+        }
+
+        const defaults = createDefaultStore();
+
+        for (const service of defaults.services)
+        {
+            if (!store.services.some(item => item.id === service.id))
+            {
+                store.services.push(service);
+            }
         }
 
         return store;
