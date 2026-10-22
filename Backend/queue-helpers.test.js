@@ -13,7 +13,7 @@ describe("estimateWait", () =>
     {
         assert.equal(estimateWait(3, 10), 30);
     });
-    
+
     test("first in line waits one expected duration", () =>
 {
     assert.equal(estimateWait(1, 15), 15);
@@ -26,8 +26,8 @@ describe("getOrderedQueue", () =>
     {
         const entries = [
             makeEntry("a", "s1", "low", 1),
-            makeEntry("b", "s1", "high", 2),
-            makeEntry("c", "s1", "high", 3),
+            makeEntry("c", "s1", "high", 3), // Later arrival appears first.
+            makeEntry("b", "s1", "high", 2), // Earlier arrival must move ahead.
             makeEntry("d", "s2", "high", 4)
         ];
 
