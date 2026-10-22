@@ -5,6 +5,22 @@ import {
     estimateWait
 } from "../Backend/queue-helpers.js";
 
+import {
+    recordJoin,
+    completeEntry
+} from "../Kaylee Backend/history-actions.js";
+
+import {
+    notifyJoined,
+    notifyLeft,
+    getNotifications,
+    getQueueStatus
+} from "../Kaylee Backend/notification-actions.js";
+
+import {
+    notifyQueueMovement
+} from "../Kaylee Backend/queue-status-actions.js";
+
 // Shows the shared popup if notifications.js loaded.
 function notify(message, type)
 {
@@ -144,7 +160,7 @@ function getCurrentQueue(store, userId)
         entryId: entry.id,
         serviceId: service.id,
         serviceName: service.name,
-        status: "Waiting",
+        status: getQueueStatus(position),
         position: position,
         waitMinutes: estimateWait(position, service.expectedDuration)
     };
@@ -233,7 +249,25 @@ function handleJoin(event)
 
     try
     {
-        joinQueue(store, userId, serviceSelect.value);
+        const result = joinQueue(store, userId, serviceSelect.value);
+        const queue = result.currentQueue;
+
+        recordJoin(
+            store, userId, queue.serviceId, queue.serviceName
+        );
+
+        notifyJoined(
+            store,
+            userId,
+            queue.serviceId,
+            queue.serviceName,
+            queue.position,
+            queue.waitMinutes
+        );
+
+        notifyQueueMovement(store, queue.serviceId);
+
+        saveStore(store);
     }
     catch (error)
     {
@@ -243,7 +277,6 @@ function handleJoin(event)
         return;
     }
 
-    saveStore(store);
 
     const currentQueue = getCurrentQueue(store, userId);
     syncQueueSnapshot(currentQueue);
@@ -253,7 +286,7 @@ function handleJoin(event)
         `Position: ${currentQueue.position}. ` +
         `Estimated wait: ${currentQueue.waitMinutes} minutes.`;
 
-    addNotification(queueMessage.textContent);
+    
     notify(queueMessage.textContent, "success");
 
     // Keep the selected service fixed while joined.
@@ -265,11 +298,30 @@ function handleJoin(event)
 function handleLeave()
 {
     const store = loadStore();
+    const userId = getCurrentUserId();
     let result;
 
     try
     {
-        result = leaveQueue(store, getCurrentUserId());
+        result = leaveQueue(store, userId);
+
+        if (result.entry === null)
+        {
+            return;
+        }
+
+        const visit = completeEntry(store, userId, "left");
+
+        notifyLeft(
+            store,
+            userId,
+            result.entry.serviceId,
+            visit.serviceName
+        );
+
+        notifyQueueMovement(store, result.entry.serviceId);
+
+        saveStore(store);
     }
     catch (error)
     {
@@ -278,13 +330,8 @@ function handleLeave()
         return;
     }
 
-    // The user was not in a queue.
-    if (result.entry === null)
-    {
-        return;
-    }
 
-    saveStore(store);
+    
     syncQueueSnapshot(null);
 
     const service = store.services.find(
@@ -298,7 +345,7 @@ function handleLeave()
 
     queueMessage.textContent = `You left the ${serviceName}queue.`;
 
-    addNotification(queueMessage.textContent);
+    
     notify(queueMessage.textContent, "info");
 
     updateEstimatedWait();
@@ -376,9 +423,18 @@ function refreshQueueDisplay()
     }
     else
     {
+        const statusLabels = {
+            waiting: "Waiting",
+            almost_ready: "Almost ready"
+        };
+
         serviceDisplay.textContent = currentQueue.serviceName;
-        statusDisplay.textContent = currentQueue.status;
+
+        statusDisplay.textContent =
+            statusLabels[currentQueue.status];
+
         positionDisplay.textContent = currentQueue.position;
+
         currentWaitDisplay.textContent =
             currentQueue.waitMinutes + " minutes";
     }
@@ -411,7 +467,7 @@ function renderAvailableServices(store)
         list.appendChild(item);
     }
 }
-
+/*
 const NOTIFICATION_STORAGE_KEY = "queueSmart.notifications";
 
 function loadNotifications()
@@ -442,6 +498,7 @@ function loadNotifications()
         return [];
     }
 }
+*/
 
 function addNotification(message)
 {
@@ -470,7 +527,12 @@ function renderNotifications()
 
     list.textContent = "";
 
-    const notifications = loadNotifications();
+    const store = loadStore();
+    const userId = getCurrentUserId();
+
+    const notifications = userId
+        ? getNotifications(store, userId).slice(0, 5)
+        : [];
 
     if (notifications.length === 0)
     {
@@ -480,10 +542,10 @@ function renderNotifications()
         return;
     }
 
-    for (const message of notifications)
+    for (const notification of notifications)
     {
         const item = document.createElement("li");
-        item.textContent = message;
+        item.textContent = notification.message;
         list.appendChild(item);
     }
 }
