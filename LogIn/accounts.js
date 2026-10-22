@@ -202,7 +202,7 @@ function onLogin(event) {
     errorElement.innerHTML = `Incorrect Login, if this is your first time, <a href="queue-signup.html"> Make an account</a>`;
   }
 
-  if(accountStorage.isAdmin(logEmail))
+  else if(accountStorage.isAdmin(logEmail))
   {
     accountStorage.setCurrentUser(logEmail)
     window.location.href = "../Admin/admin-dashboard.html"
