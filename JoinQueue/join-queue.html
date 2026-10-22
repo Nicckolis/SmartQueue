@@ -19,42 +19,64 @@
   <header>
     <h1>Queue<span class="smart">Smart</span></h1>
 
-    <nav>
+    <nav aria-label="Main navigation">
       <a href="../UserDashboard/dashboard.html">Dashboard</a>
-      <a href="join-queue.html">Join a queue</a>
+      <a href="join-queue.html" aria-current="page">Join queue</a>
       <a href="../logout.html">Logout</a>
     </nav>
   </header>
 
   <main class="queue-container">
-    <h2>Join a queue</h2>
+    <h2>Join the queue</h2>
+
+    <p id="queue-explanation">
+      Choose a service to join the shared queue.
+      Higher-priority services are served first.
+      People with the same priority are served in arrival order.
+    </p>
 
     <form id="join-queue-form">
       <div class="queue-fields">
         <div>
           <label for="service">Select a service (required):</label>
 
-          <select id="service" name="service" class="form-control" required>
+          <select
+            id="service"
+            name="service"
+            class="form-control"
+            aria-describedby="queue-explanation"
+            required
+          >
             <option value="">Choose a service</option>
-            <option value="service-1">Prescription Pickup</option>
-            <option value="service-2">New Prescription Fill</option>
-            <option value="service-3">Vaccine / Injection</option>
-            <option value="service-4">Pharmacist Consultation</option>
+            <!-- queue-logic.js adds the saved services here. -->
           </select>
         </div>
 
         <div class="wait-summary">
           <span>Estimated wait</span>
-          <span id="estimated-wait">-</span>
+          <span
+            id="estimated-wait"
+            aria-live="polite"
+            aria-atomic="true"
+          >—</span>
         </div>
       </div>
 
       <div class="queue-actions">
-        <button type="submit" id="join-queue" class="btn btn-primary">
+        <button
+          type="submit"
+          id="join-queue"
+          class="btn btn-primary"
+        >
           Join queue
         </button>
 
-        <button type="button" id="leave-queue" class="btn btn-secondary" disabled>
+        <button
+          type="button"
+          id="leave-queue"
+          class="btn btn-secondary"
+          disabled
+        >
           Leave queue
         </button>
       </div>

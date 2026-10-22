@@ -62,7 +62,7 @@ function joinQueue(store, userId, serviceId)
     {
         throw queueError(
             409,
-            "Leave your current queue before joining another."
+            "You are already waiting in line. Leave before joining another service."
         );
     }
 

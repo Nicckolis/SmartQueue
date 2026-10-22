@@ -17,9 +17,9 @@
   <header>
     <h1>Queue<span class="smart">Smart</span></h1>
 
-    <nav>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="../JoinQueue/join-queue.html">Join a queue</a>
+    <nav aria-label="Main navigation">
+      <a href="dashboard.html" aria-current="page">Dashboard</a>
+      <a href="../JoinQueue/join-queue.html">Join queue</a>
       <a href="../logout.html">Logout</a>
     </nav>
   </header>
@@ -27,26 +27,45 @@
   <main class="dashboard">
     <h2>User Dashboard</h2>
 
-    <section class=" box queue-panel">
-  <h3>My current queue</h3>
-  <p>Service: <span id="current-service">-</span></p>
-  <p>Status: <span id="current-status">Not in a queue</span></p>
-  <p>Position: <span id="current-position">-</span></p>
-  <p>Estimated wait: <span id="current-wait">-</span></p>
-</section>
+    <section class="box queue-panel">
+      <h3>My queue status</h3>
 
-<section class="box queue-panel">
-  <h3>Available services</h3>
-  <ul id="available-services-list">
-  
-  </ul>
-  <a href="../JoinQueue/join-queue.html">Choose a service</a>
-</section>
+      <p>
+        Selected service:
+        <span id="current-service">—</span>
+      </p>
+
+      <p>
+        Status:
+        <span id="current-status">Loading...</span>
+      </p>
+
+      <p>
+        Position in shared queue:
+        <span id="current-position">—</span>
+      </p>
+
+      <p>
+        Estimated wait:
+        <span id="current-wait">—</span>
+      </p>
+    </section>
+
+    <section class="box queue-panel">
+      <h3>Available services</h3>
+
+      <ul id="available-services-list">
+        <li>Loading services...</li>
+      </ul>
+
+      <a href="../JoinQueue/join-queue.html">Choose a service</a>
+    </section>
 
     <section class="box queue-panel">
       <h3>Recent notifications</h3>
+
       <ul id="notification-list">
-        
+        <li>Loading notifications...</li>
       </ul>
     </section>
   </main>
