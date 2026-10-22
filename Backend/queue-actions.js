@@ -1,4 +1,5 @@
-
+// Expects store.services, store.queueEntries, and store.nextArrivalOrder.
+// Services include id, name, expectedDuration, priority, and isOpen.
 import {
     getOrderedQueue,
     getQueuePosition,
@@ -46,10 +47,13 @@ function joinQueue(store, userId, serviceId)
 
     if (service.isOpen !== true)
     {
-        throw queueError(409, "This queue is closed to new arrivals.");
+        throw queueError(
+            409,
+            "This queue is closed to new arrivals."
+        );
     }
 
-    // Enforce one active queue per user across all services.
+    // One active entry per user in the shared queue.
     const alreadyJoined = store.queueEntries.some(
         entry => entry.userId === userId
     );
@@ -73,9 +77,14 @@ function joinQueue(store, userId, serviceId)
 
     const arrivalOrder = store.nextArrivalOrder;
 
+    // The counter is shared across services and must stay ahead
+    // of all active entries, even after users leave or are served.
     if (!Number.isSafeInteger(arrivalOrder) ||
         arrivalOrder < 1 ||
-        arrivalOrder >= Number.MAX_SAFE_INTEGER)
+        arrivalOrder >= Number.MAX_SAFE_INTEGER ||
+        store.queueEntries.some(
+            entry => entry.arrivalOrder >= arrivalOrder
+        ))
     {
         throw queueError(
             500,
@@ -87,25 +96,29 @@ function joinQueue(store, userId, serviceId)
         id: crypto.randomUUID(),
         userId: userId,
         serviceId: serviceId,
-        priorityLevel: "medium",
         arrivalOrder: arrivalOrder,
         joinedAt: Date.now()
     };
 
-    // Calculate the result before changing the shared store.
+    // Use each service's current priority, rather than storing
+    // a separate priority on the entry.
+    // Calculate everything before changing the store.
     const orderedQueue = getOrderedQueue(
         [...store.queueEntries, entry],
-        serviceId
+        store.services
     );
 
-    const position = getQueuePosition(orderedQueue, userId);
+    const position = getQueuePosition(
+        orderedQueue,
+        userId
+    );
 
     const waitMinutes = estimateWait(
+        orderedQueue,
         position,
-        service.expectedDuration
+        store.services
     );
 
-    // Update the supplied store in memory.
     store.queueEntries.push(entry);
     store.nextArrivalOrder += 1;
 
@@ -140,10 +153,13 @@ function leaveQueue(store, userId)
         };
     }
 
-    // Leaving remains possible when a service is closed.
+    // Leaving remains possible after a service closes.
+    // Do not reset the shared arrival counter.
     const [removedEntry] = store.queueEntries.splice(index, 1);
 
-    // Return the departed entry for history/notifications.
+    // The caller can pass this entry to the history/notification
+    // functions, notify movement across the whole queue,
+    // and then save the store.
     return {
         entry: { ...removedEntry },
         currentQueue: null
@@ -151,4 +167,7 @@ function leaveQueue(store, userId)
 }
 
 
-export { joinQueue, leaveQueue };
+export {
+    joinQueue,
+    leaveQueue
+};
