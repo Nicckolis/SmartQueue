@@ -1,0 +1,392 @@
+▶ access check on load
+  [32m✔ sends a non-admin to the login page [90m(2.876041ms)[39m[39m
+  [32m✔ logs the permission denied message for a non-admin [90m(0.960209ms)[39m[39m
+  [32m✔ renders nothing and attaches no click handler for a non-admin [90m(0.893083ms)[39m[39m
+  [32m✔ does not redirect an admin [90m(2.287708ms)[39m[39m
+  [32m✔ renders the users and attaches the click handler for an admin [90m(0.82425ms)[39m[39m
+[32m✔ access check on load [90m(9.002458ms)[39m[39m
+▶ renderUsers
+  [32m✔ renders one card per user [90m(0.430416ms)[39m[39m
+  [32m✔ renders nothing when there are no users [90m(0.375333ms)[39m[39m
+  [32m✔ sets each card's data-username and visible name [90m(1.211291ms)[39m[39m
+  [32m✔ labels admins as admin and everyone else as user [90m(0.350375ms)[39m[39m
+  [32m✔ hides promote and shows demote for an admin [90m(0.367833ms)[39m[39m
+  [32m✔ shows promote and hides demote for a regular user [90m(0.34ms)[39m[39m
+  [32m✔ replaces the old cards instead of adding to them [90m(0.309542ms)[39m[39m
+[32m✔ renderUsers [90m(3.574958ms)[39m[39m
+▶ click handling
+  [32m✔ ignores clicks that are not on an action button [90m(0.407291ms)[39m[39m
+  [32m✔ ignores an unknown action [90m(0.403709ms)[39m[39m
+  [32m✔ redirects and does nothing else if the user is no longer an admin [90m(2.761167ms)[39m[39m
+[32m✔ click handling [90m(3.731125ms)[39m[39m
+▶ promote action
+  [32m✔ promotes the clicked user and re-renders [90m(3.349166ms)[39m[39m
+[32m✔ promote action [90m(3.462667ms)[39m[39m
+▶ demote action
+  [32m✔ demotes an admin when others remain and re-renders [90m(0.532291ms)[39m[39m
+  [32m✔ shows an error and changes nothing when it is the last admin [90m(1.725ms)[39m[39m
+[32m✔ demote action [90m(2.350125ms)[39m[39m
+▶ delete action
+  [32m✔ asks for confirmation with the username [90m(0.514458ms)[39m[39m
+  [32m✔ deletes the user and re-renders when confirmed [90m(0.365625ms)[39m[39m
+  [32m✔ does nothing when the confirmation is cancelled [90m(0.532791ms)[39m[39m
+  [32m✔ shows an error and keeps the user when the account cannot be deleted [90m(0.409875ms)[39m[39m
+  [32m✔ does not clear an earlier error after a later successful action [90m(0.338875ms)[39m[39m
+[32m✔ delete action [90m(2.290875ms)[39m[39m
+[32m✔ serves by priority then arrival and recalculates waiting times [90m(8.245333ms)[39m[39m
+[32m✔ completes history and creates served and movement notifications [90m(0.250709ms)[39m[39m
+[32m✔ regular user cannot serve users [90m(2.461166ms)[39m[39m
+[32m✔ signed-out visitor cannot serve users [90m(3.2205ms)[39m[39m
+[32m✔ an empty queue returns null without changing the store [90m(0.33575ms)[39m[39m
+[31m✖ can serve a queued user when no history record exists [90m(2.029709ms)[39m[39m
+[32m✔ a notification failure leaves the original store unchanged [90m(0.263958ms)[39m[39m
+[32m✔ serves everyone once and then returns null [90m(0.27775ms)[39m[39m
+▶ joinQueue: successful joins
+  [32m✔ returns the new entry and a zero wait for the first user [90m(9.274708ms)[39m[39m
+  [32m✔ saves unique entries with one arrival counter across services [90m(0.19225ms)[39m[39m
+  [32m✔ third user of the same service waits for two people ahead [90m(0.083125ms)[39m[39m
+  [32m✔ equal-priority services share arrival order and combined wait time [90m(0.089375ms)[39m[39m
+  [32m✔ a later arrival for a high-priority service moves to the front [90m(0.066375ms)[39m[39m
+  [32m✔ a medium-priority arrival goes after high and before low [90m(0.095166ms)[39m[39m
+  [32m✔ returns an entry copy that cannot change the stored entry [90m(0.066083ms)[39m[39m
+[32m✔ joinQueue: successful joins [90m(10.701083ms)[39m[39m
+▶ joinQueue: validation rules
+  [32m✔ rejects missing or invalid user IDs with 401 [90m(0.568917ms)[39m[39m
+  [32m✔ rejects missing or invalid service IDs with 400 [90m(0.258709ms)[39m[39m
+  [32m✔ rejects an unknown service with 404 [90m(0.108125ms)[39m[39m
+  [32m✔ rejects a closed service or one with no open flag [90m(0.366584ms)[39m[39m
+  [32m✔ rejects a second active entry for the same or another service [90m(0.205541ms)[39m[39m
+  [32m✔ rejects invalid selected-service durations with 500 [90m(0.215792ms)[39m[39m
+  [32m✔ rejects invalid arrival counters with 500 [90m(0.257833ms)[39m[39m
+  [32m✔ rejects a counter equal to or behind existing arrival orders [90m(0.185042ms)[39m[39m
+  [32m✔ leaves the store unchanged if priority validation fails [90m(0.100334ms)[39m[39m
+  [32m✔ leaves the store unchanged if a duration ahead is invalid [90m(0.105708ms)[39m[39m
+[32m✔ joinQueue: validation rules [90m(2.63125ms)[39m[39m
+▶ leaveQueue
+  [32m✔ removes only the leaving user and preserves the arrival counter [90m(0.17075ms)[39m[39m
+  [32m✔ returns nulls and changes nothing when the user is not queued [90m(0.078208ms)[39m[39m
+  [32m✔ allows leaving after the user's service closes [90m(0.058542ms)[39m[39m
+  [32m✔ rejoining another service receives a new arrival order [90m(0.070417ms)[39m[39m
+  [32m✔ rejects missing or invalid user IDs with 401 [90m(0.201917ms)[39m[39m
+  [32m✔ leaving reduces the position and wait of a user of another service [90m(0.071542ms)[39m[39m
+[32m✔ leaveQueue [90m(0.787125ms)[39m[39m
+▶ getOrderedQueue
+  [32m✔ combines all services and orders by priority, then arrival [90m(1.388709ms)[39m[39m
+  [32m✔ uses arrival order across different services with equal priority [90m(0.126958ms)[39m[39m
+  [32m✔ uses service priority instead of a legacy entry priority [90m(0.1075ms)[39m[39m
+  [32m✔ recalculates order after an administrator changes service priority [90m(0.088791ms)[39m[39m
+  [32m✔ preserves existing entries when their service is closed [90m(0.072084ms)[39m[39m
+  [32m✔ returns a new array without changing the original entries [90m(0.19275ms)[39m[39m
+  [32m✔ returns an empty array for an empty queue [90m(0.0545ms)[39m[39m
+  [32m✔ rejects a queue that is not an array [90m(0.286208ms)[39m[39m
+  [32m✔ rejects malformed service lists and duplicate service IDs [90m(0.15525ms)[39m[39m
+  [32m✔ rejects an entry whose service does not exist [90m(3.227292ms)[39m[39m
+  [32m✔ rejects invalid service priorities [90m(0.128625ms)[39m[39m
+  [32m✔ rejects invalid arrival orders [90m(0.113708ms)[39m[39m
+[32m✔ getOrderedQueue [90m(8.25075ms)[39m[39m
+▶ getQueuePosition
+  [32m✔ returns a 1-based global position using the user ID [90m(0.151209ms)[39m[39m
+  [32m✔ returns null when the user is absent or the queue is empty [90m(0.069958ms)[39m[39m
+[32m✔ getQueuePosition [90m(0.322375ms)[39m[39m
+▶ estimateWait
+  [32m✔ first in line waits zero minutes [90m(0.141667ms)[39m[39m
+  [32m✔ adds the different service durations ahead and excludes the user's own [90m(0.060334ms)[39m[39m
+  [32m✔ counts people ahead when everyone uses the same service [90m(0.052208ms)[39m[39m
+  [32m✔ returns null when there is no queue position [90m(0.048208ms)[39m[39m
+  [32m✔ rejects invalid positions [90m(0.098708ms)[39m[39m
+  [32m✔ rejects queue or service arguments that are not arrays [90m(0.076167ms)[39m[39m
+  [32m✔ rejects a missing service for someone ahead [90m(0.072125ms)[39m[39m
+  [32m✔ rejects invalid service durations for someone ahead [90m(0.102709ms)[39m[39m
+[32m✔ estimateWait [90m(0.801542ms)[39m[39m
+[32m✔ an admin can create a service [90m(10.428042ms)[39m[39m
+[32m✔ created services have different IDs [90m(0.158084ms)[39m[39m
+[32m✔ regular user cannot create a service [90m(0.306083ms)[39m[39m
+[32m✔ signed-out visitor cannot create a service [90m(0.066458ms)[39m[39m
+[32m✔ rejects blank name without changing existing data [90m(0.138541ms)[39m[39m
+[32m✔ rejects non-text name without changing existing data [90m(0.066625ms)[39m[39m
+[32m✔ rejects long name without changing existing data [90m(0.059833ms)[39m[39m
+[32m✔ rejects blank description without changing existing data [90m(0.0535ms)[39m[39m
+[32m✔ rejects non-text description without changing existing data [90m(0.061ms)[39m[39m
+[32m✔ rejects long description without changing existing data [90m(0.060666ms)[39m[39m
+[32m✔ rejects zero duration without changing existing data [90m(0.074542ms)[39m[39m
+[32m✔ rejects negative duration without changing existing data [90m(0.06275ms)[39m[39m
+[32m✔ rejects fractional duration without changing existing data [90m(0.306208ms)[39m[39m
+[32m✔ rejects text duration without changing existing data [90m(0.265708ms)[39m[39m
+[32m✔ rejects invalid priority without changing existing data [90m(0.199166ms)[39m[39m
+[32m✔ rejects missing service details [90m(0.233875ms)[39m[39m
+[32m✔ an admin can update details without changing identity or queues [90m(0.490125ms)[39m[39m
+[32m✔ regular user cannot update a service [90m(0.259416ms)[39m[39m
+[32m✔ signed-out visitor cannot update a service [90m(0.3015ms)[39m[39m
+[32m✔ update rejects missing ID [90m(0.356791ms)[39m[39m
+[32m✔ update rejects blank ID [90m(0.080375ms)[39m[39m
+[32m✔ update rejects non-text ID [90m(0.062792ms)[39m[39m
+[32m✔ update rejects unknown ID [90m(0.047458ms)[39m[39m
+[32m✔ invalid update details leave the original service unchanged [90m(0.098292ms)[39m[39m
+[32m✔ update requires complete service details [90m(0.081042ms)[39m[39m
+[32m✔ an admin can list services, including closed services [90m(0.092333ms)[39m[39m
+[32m✔ listing an empty store returns an empty array [90m(0.047917ms)[39m[39m
+[32m✔ changing the returned list does not change stored services [90m(0.063875ms)[39m[39m
+[32m✔ regular user cannot list management services [90m(0.069667ms)[39m[39m
+[32m✔ signed-out visitor cannot list management services [90m(0.041833ms)[39m[39m
+[32m✔ default stores do not share mutable data [90m(3.958125ms)[39m[39m
+[32m✔ missing saved data returns and saves defaults [90m(1.115083ms)[39m[39m
+[32m✔ saving and loading preserves services and other shared data [90m(1.204208ms)[39m[39m
+[32m✔ empty service and queue arrays are valid saved data [90m(0.152625ms)[39m[39m
+[32m✔ malformed JSON throws without replacing saved data [90m(0.331917ms)[39m[39m
+[32m✔ rejects null store without overwriting storage [90m(0.172292ms)[39m[39m
+[32m✔ rejects services is not an array without overwriting storage [90m(0.127541ms)[39m[39m
+[32m✔ rejects queueEntries is not an array without overwriting storage [90m(0.170041ms)[39m[39m
+[32m✔ a storage read failure is reported to the caller [90m(0.144833ms)[39m[39m
+[32m✔ a failed save preserves previous data and the supplied store [90m(0.201917ms)[39m[39m
+[32m✔ adds medium priority to older services but keeps assigned priorities [90m(0.146958ms)[39m[39m
+[32m✔ moves a counter that is behind existing entries past them [90m(0.130083ms)[39m[39m
+[32m✔ rejects an invalid saved service without changing storage [90m(0.205625ms)[39m[39m
+[32m✔ rejects an invalid saved history without changing storage [90m(0.127459ms)[39m[39m
+[32m✔ rejects an invalid saved entry arrival order without changing storage [90m(0.12ms)[39m[39m
+[32m✔ rejects an invalid saved history id without changing storage [90m(0.100458ms)[39m[39m
+[32m✔ rejects an invalid saved notification id without changing storage [90m(0.097291ms)[39m[39m
+[32m✔ rejects a queued entry whose service no longer exists [90m(0.128167ms)[39m[39m
+[32m✔ restores missing waiting history and keeps the original join time [90m(0.250208ms)[39m[39m
+[32m✔ rejects saved history that disagrees with the queue [90m(0.121791ms)[39m[39m
+[32m✔ does not rewrite storage when nothing needs repair [90m(0.097ms)[39m[39m
+[32m✔ repairs a missing arrival counter [90m(0.21575ms)[39m[39m
+[32m✔ repairs a zero arrival counter [90m(0.102792ms)[39m[39m
+[32m✔ repairs a fractional arrival counter [90m(0.091584ms)[39m[39m
+[32m✔ repairs a text arrival counter [90m(0.090625ms)[39m[39m
+[32m✔ older queue data gains missing fields and history without duplication [90m(0.320875ms)[39m[39m
+▶ recordJoin
+  [32m✔ creates a waiting entry and adds fields to the store [90m(0.865666ms)[39m[39m
+  [32m✔ rejects a second active queue with 409 [90m(1.88ms)[39m[39m
+  [32m✔ rejects bad fields with 400 [90m(0.428958ms)[39m[39m
+  [32m✔ repairs a bad history counter [90m(0.084334ms)[39m[39m
+[32m✔ recordJoin [90m(6.583416ms)[39m[39m
+▶ completeEntry
+  [32m✔ sets the outcome and completion time [90m(0.507584ms)[39m[39m
+  [32m✔ only completes the requested user's entry [90m(0.166542ms)[39m[39m
+  [32m✔ rejects when there is no active entry with 404 [90m(0.273791ms)[39m[39m
+  [32m✔ rejects waiting or unknown outcomes with 400 [90m(0.290708ms)[39m[39m
+  [32m✔ lets a user rejoin after completing [90m(0.165458ms)[39m[39m
+[32m✔ completeEntry [90m(1.782792ms)[39m[39m
+▶ getHistory
+  [32m✔ returns one user's entries newest first [90m(5.331292ms)[39m[39m
+  [32m✔ filters by outcome and service name [90m(0.168709ms)[39m[39m
+  [32m✔ returns an empty array for a user with no history [90m(0.066542ms)[39m[39m
+  [32m✔ rejects a bad user or outcome with 400 [90m(0.116625ms)[39m[39m
+  [32m✔ returns copies, not stored entries [90m(0.053833ms)[39m[39m
+[32m✔ getHistory [90m(8.548ms)[39m[39m
+▶ getQueueStatus
+  [32m✔ far from the front is waiting [90m(0.487416ms)[39m[39m
+  [32m✔ at the threshold is almost_ready [90m(0.069792ms)[39m[39m
+  [32m✔ position 0 or served flag is served [90m(0.067958ms)[39m[39m
+  [32m✔ rejects an invalid position with 400 [90m(0.336333ms)[39m[39m
+[32m✔ getQueueStatus [90m(1.717083ms)[39m[39m
+▶ adding notifications
+  [32m✔ creates unread notifications and adds fields to the store [90m(0.270125ms)[39m[39m
+  [32m✔ served and removed messages [90m(0.07775ms)[39m[39m
+  [32m✔ returns a copy, not the stored object [90m(0.064333ms)[39m[39m
+  [32m✔ repairs a bad notification counter [90m(0.061333ms)[39m[39m
+  [32m✔ keeps only the 100 newest [90m(0.807834ms)[39m[39m
+[32m✔ adding notifications [90m(1.422375ms)[39m[39m
+▶ notifyPositionChange
+  [32m✔ far from the front sends position_update [90m(0.176917ms)[39m[39m
+  [32m✔ almost_ready is sent only once per queue visit [90m(0.088333ms)[39m[39m
+  [32m✔ a position_update in between does not hide the alert [90m(0.05575ms)[39m[39m
+  [32m✔ rejoining allows a new almost_ready alert [90m(0.04625ms)[39m[39m
+  [32m✔ alerts are tracked per user and per service [90m(0.045542ms)[39m[39m
+  [32m✔ position 0 sends served [90m(0.038208ms)[39m[39m
+[32m✔ notifyPositionChange [90m(0.584791ms)[39m[39m
+▶ reading and marking notifications
+  [32m✔ lists one user's notifications newest first [90m(0.6425ms)[39m[39m
+  [32m✔ unreadOnly filters out read ones [90m(0.0875ms)[39m[39m
+  [32m✔ markRead rejects an unknown or other user's notification with 404 [90m(0.0815ms)[39m[39m
+  [32m✔ markAllRead returns how many changed [90m(0.068375ms)[39m[39m
+[32m✔ reading and marking notifications [90m(0.960709ms)[39m[39m
+▶ notification validation
+  [32m✔ rejects missing user or service with 400 [90m(0.119ms)[39m[39m
+  [32m✔ rejects a bad type or message with 400 [90m(0.089167ms)[39m[39m
+  [32m✔ a rejected call leaves the store unchanged [90m(0.103583ms)[39m[39m
+[32m✔ notification validation [90m(0.375167ms)[39m[39m
+node:internal/modules/esm/resolve:272
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/leiweijon/Desktop/QueueSmart/SmartQueue/Kaylee Backend/queue-actions.js' imported from /Users/leiweijon/Desktop/QueueSmart/SmartQueue/Kaylee Backend/queue-status-actions.test.js
+    at finalizeResolution (node:internal/modules/esm/resolve:272:11)
+    at moduleResolve (node:internal/modules/esm/resolve:879:10)
+    at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:705:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:725:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:763:56)
+    at #resolve (node:internal/modules/esm/loader:687:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:607:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:276:33)
+    at ModuleJob.link (node:internal/modules/esm/module_job:381:17) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/leiweijon/Desktop/QueueSmart/SmartQueue/Kaylee%20Backend/queue-actions.js'
+}
+
+Node.js v24.22.1
+[31m✖ Kaylee Backend/queue-status-actions.test.js [90m(41.9955ms)[39m[39m
+▶ ConfirmPassword
+  [32m✔ is true when both passwords match [90m(1.219459ms)[39m[39m
+  [32m✔ is false when the passwords differ [90m(0.369167ms)[39m[39m
+  [32m✔ is case sensitive [90m(0.324334ms)[39m[39m
+[32m✔ ConfirmPassword [90m(2.648791ms)[39m[39m
+▶ CheckEmail
+  [32m✔ accepts an address with a listed domain [90m(0.86675ms)[39m[39m
+  [32m✔ rejects an address with an unlisted domain [90m(0.305625ms)[39m[39m
+  [32m✔ rejects text with no @ [90m(0.302125ms)[39m[39m
+  [32m✔ uses the list it is given [90m(0.297375ms)[39m[39m
+  [32m✔ rejects an uppercase domain [90m(0.295458ms)[39m[39m
+[32m✔ CheckEmail [90m(2.194916ms)[39m[39m
+▶ onSignup
+  [32m✔ calls preventDefault [90m(0.479042ms)[39m[39m
+  [32m✔ asks for all fields when the email is blank or whitespace [90m(0.348792ms)[39m[39m
+  [32m✔ asks for all fields when a password is missing [90m(0.290125ms)[39m[39m
+  [32m✔ reports both problems when the email is invalid and the passwords differ [90m(0.278ms)[39m[39m
+  [32m✔ reports an invalid email [90m(0.319542ms)[39m[39m
+  [32m✔ reports mismatched passwords [90m(0.267625ms)[39m[39m
+  [32m✔ points an existing account to the login page [90m(0.350417ms)[39m[39m
+  [32m✔ creates the account, sets the message and redirects on success [90m(0.294ms)[39m[39m
+  [32m✔ clears an earlier error message on a valid submit [90m(0.273916ms)[39m[39m
+  [32m✔ creates nothing and does not redirect when validation fails [90m(0.279667ms)[39m[39m
+[32m✔ onSignup [90m(3.353792ms)[39m[39m
+▶ onLogin
+  [32m✔ calls preventDefault [90m(0.368792ms)[39m[39m
+  [32m✔ asks for all fields when the email is blank [90m(0.703917ms)[39m[39m
+  [32m✔ asks for all fields when the password is blank [90m(0.766625ms)[39m[39m
+  [32m✔ rejects a wrong password without logging in or redirecting [90m(0.312292ms)[39m[39m
+  [32m✔ rejects an unknown user [90m(0.287208ms)[39m[39m
+  [32m✔ logs in an admin and redirects to the admin dashboard [90m(0.304791ms)[39m[39m
+  [32m✔ logs in a regular user and redirects to the user dashboard [90m(0.278792ms)[39m[39m
+[32m✔ onLogin [90m(3.225916ms)[39m[39m
+▶ page wiring
+  [32m✔ attaches onSignup to the signup form's submit event [90m(0.302833ms)[39m[39m
+  [32m✔ attaches onLogin to the login form's submit event [90m(0.258667ms)[39m[39m
+  [32m✔ does not throw on a page with neither form [90m(0.323375ms)[39m[39m
+  [32m✔ shows the account-created message once and removes it [90m(0.302875ms)[39m[39m
+  [32m✔ leaves the element empty when there is no message [90m(0.302667ms)[39m[39m
+[32m✔ page wiring [90m(1.58225ms)[39m[39m
+▶ constructor
+  [32m✔ creates the default account and makes it an admin [90m(2.551625ms)[39m[39m
+  [32m✔ does not duplicate the admin when constructed again [90m(1.7655ms)[39m[39m
+  [32m✔ keeps existing accounts when constructed again [90m(0.495834ms)[39m[39m
+  [32m✔ re-creates the default admin if it was removed [90m(0.508167ms)[39m[39m
+[32m✔ constructor [90m(6.176791ms)[39m[39m
+▶ AccountManager.setAccount
+  [32m✔ creates a new account [90m(0.799417ms)[39m[39m
+  [32m✔ stores the password encoded, not as plain text [90m(0.625958ms)[39m[39m
+  [32m✔ keeps existing accounts when adding another [90m(0.60225ms)[39m[39m
+  [32m✔ does not make the new account an admin [90m(0.575625ms)[39m[39m
+[32m✔ AccountManager.setAccount [90m(2.736375ms)[39m[39m
+▶ checkAccount
+  [32m✔ accepts the correct password [90m(0.332958ms)[39m[39m
+  [32m✔ rejects a wrong password [90m(0.307125ms)[39m[39m
+  [32m✔ rejects an unknown user [90m(0.303583ms)[39m[39m
+[32m✔ checkAccount [90m(1.010417ms)[39m[39m
+▶ hasAccount
+  [32m✔ is true for an existing account [90m(0.322583ms)[39m[39m
+  [32m✔ is false for an unknown username [90m(0.316459ms)[39m[39m
+  [32m✔ is false for null and undefined [90m(0.564625ms)[39m[39m
+  [32m✔ is case sensitive [90m(0.407334ms)[39m[39m
+[32m✔ hasAccount [90m(1.734833ms)[39m[39m
+▶ isAdmin
+  [32m✔ is true for an admin [90m(0.42275ms)[39m[39m
+  [32m✔ is false for a regular user [90m(0.37775ms)[39m[39m
+  [32m✔ is false for a nonexistent user and for null [90m(0.341792ms)[39m[39m
+  [32m✔ is false for a stale admin entry whose account does not exist [90m(0.604542ms)[39m[39m
+[32m✔ isAdmin [90m(1.832875ms)[39m[39m
+▶ addAdmin
+  [32m✔ promotes an existing account [90m(0.416083ms)[39m[39m
+  [32m✔ refuses a nonexistent account [90m(0.299875ms)[39m[39m
+  [32m✔ refuses someone who is already an admin and adds no duplicate [90m(0.324708ms)[39m[39m
+[32m✔ addAdmin [90m(1.864708ms)[39m[39m
+▶ removeAdmin
+  [32m✔ demotes an admin when others remain [90m(0.418667ms)[39m[39m
+  [32m✔ refuses to remove the last admin [90m(0.339208ms)[39m[39m
+  [32m✔ refuses a user who is not an admin [90m(0.343875ms)[39m[39m
+  [32m✔ refuses a nonexistent account [90m(0.303125ms)[39m[39m
+[32m✔ removeAdmin [90m(1.483709ms)[39m[39m
+▶ removeAccount
+  [32m✔ refuses a nonexistent account [90m(0.342667ms)[39m[39m
+  [32m✔ deletes a regular account [90m(0.3435ms)[39m[39m
+  [32m✔ deletes an admin account and removes it from the admin list [90m(0.32275ms)[39m[39m
+  [32m✔ refuses to delete the last admin and leaves everything intact [90m(0.312083ms)[39m[39m
+  [32m✔ does not make a re-created account an admin if its name belonged to a deleted admin [90m(0.30575ms)[39m[39m
+[32m✔ removeAccount [90m(1.710042ms)[39m[39m
+▶ current user
+  [32m✔ is null when nobody is logged in [90m(0.313375ms)[39m[39m
+  [32m✔ returns the user after setCurrentUser [90m(0.2945ms)[39m[39m
+  [32m✔ clears a stale login when the account was deleted [90m(0.294042ms)[39m[39m
+  [32m✔ removeCurrentUser logs the user out [90m(0.288875ms)[39m[39m
+  [32m✔ removeCurrentUser is harmless when nobody is logged in [90m(0.333334ms)[39m[39m
+[32m✔ current user [90m(1.604792ms)[39m[39m
+▶ isCurrentUserAdmin
+  [32m✔ is true when an admin is logged in [90m(0.314083ms)[39m[39m
+  [32m✔ is false when a regular user is logged in [90m(0.2825ms)[39m[39m
+  [32m✔ is false when nobody is logged in [90m(0.28ms)[39m[39m
+  [32m✔ is false when the logged-in account no longer exists [90m(0.294667ms)[39m[39m
+[32m✔ isCurrentUserAdmin [90m(1.237625ms)[39m[39m
+▶ getUserList
+  [32m✔ returns false when nobody is logged in [90m(0.314125ms)[39m[39m
+  [32m✔ returns false for a regular user [90m(0.462042ms)[39m[39m
+  [32m✔ returns every username for an admin [90m(0.385125ms)[39m[39m
+[32m✔ getUserList [90m(1.872875ms)[39m[39m
+[34mℹ tests 242[39m
+[34mℹ suites 36[39m
+[34mℹ pass 240[39m
+[34mℹ fail 2[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 246.252333[39m
+[34mℹ start of coverage report
+ℹ ---------------------------------------------------------------------------
+ℹ file                       | [31mline %[34m | [31mbranch %[34m | [31mfuncs %[34m | uncovered lines
+ℹ ---------------------------------------------------------------------------
+ℹ Admin                      | [31m      [34m | [31m        [34m | [31m       [34m | 
+ℹ  [32muser-management.js       [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ [32mauth.js                   [34m | [32m 98.82[34m | [32m   97.62[34m | [32m 100.00[34m | 21-22
+ℹ Backend                    | [31m      [34m | [31m        [34m | [31m       [34m | 
+ℹ  [32madmin-queue-actions.js   [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ  [32mqueue-actions.js         [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ  [32mqueue-helpers.js         [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ  [32mservice-actions.js       [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ  [32mshared-store.js          [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ Kaylee Backend             | [31m      [34m | [31m        [34m | [31m       [34m | 
+ℹ  [32merrors.js                [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ  [32mhistory-actions.js       [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ  [32mnotification-actions.js  [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ LogIn                      | [31m      [34m | [31m        [34m | [31m       [34m | 
+ℹ  [32maccounts.js              [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ ---------------------------------------------------------------------------
+ℹ all files                  | [32m 99.88[34m | [32m   99.72[34m | [32m 100.00[34m | 
+ℹ ---------------------------------------------------------------------------
+ℹ end of coverage report
+[39m
+[31m✖ failing tests:[39m
+
+test at Backend/admin-queue-actions.test.js:142:1
+[31m✖ can serve a queued user when no history record exists [90m(2.029709ms)[39m[39m
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  [] !== undefined
+  
+      at TestContext.<anonymous> [90m(file:///Users/leiweijon/Desktop/QueueSmart/SmartQueue/[39mBackend/admin-queue-actions.test.js:151:12[90m)[39m
+  [90m    at Test.runInAsyncScope (node:async_hooks:227:14)[39m
+  [90m    at Test.run (node:internal/test_runner/test:1402:25)[39m
+  [90m    at Test.processPendingSubtests (node:internal/test_runner/test:974:18)[39m
+  [90m    at Test.postRun (node:internal/test_runner/test:1542:19)[39m
+  [90m    at Test.run (node:internal/test_runner/test:1467:12)[39m
+  [90m    at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)[39m {
+    generatedMessage: [33mtrue[39m,
+    code: [32m'ERR_ASSERTION'[39m,
+    actual: [],
+    expected: [90mundefined[39m,
+    operator: [32m'strictEqual'[39m,
+    diff: [32m'simple'[39m
+  }
+
+test at Kaylee Backend/queue-status-actions.test.js:1:1
+[31m✖ Kaylee Backend/queue-status-actions.test.js [90m(41.9955ms)[39m[39m
+  [32m'test failed'[39m
