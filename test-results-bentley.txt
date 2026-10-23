@@ -1,0 +1,197 @@
+Auth.js //handles local storage saved accounts
+▶ constructor
+  ✔ creates the default account and makes it an admin (6.2274ms)
+  ✔ does not duplicate the admin when constructed again (4.5395ms)
+  ✔ keeps existing accounts when constructed again (2.0281ms)
+  ✔ re-creates the default admin if it was removed (2.6472ms)
+✔ constructor (19.5304ms)
+▶ AccountManager.setAccount
+  ✔ creates a new account (4.785ms)
+  ✔ stores the password encoded, not as plain text (3.8036ms)
+  ✔ keeps existing accounts when adding another (3.4476ms)
+  ✔ does not make the new account an admin (3.3253ms)
+✔ AccountManager.setAccount (16.1556ms)
+▶ checkAccount
+  ✔ accepts the correct password (2.1511ms)
+  ✔ rejects a wrong password (1.8988ms)
+  ✔ rejects an unknown user (1.7922ms)
+✔ checkAccount (6.3563ms)
+▶ hasAccount
+  ✔ is true for an existing account (2.3287ms)
+  ✔ is false for an unknown username (1.5866ms)
+  ✔ is false for null and undefined (1.6554ms)
+  ✔ is case sensitive (1.913ms)
+✔ hasAccount (8.3589ms)
+▶ isAdmin
+  ✔ is true for an admin (2.3875ms)
+  ✔ is false for a regular user (1.7342ms)
+  ✔ is false for a nonexistent user and for null (1.5364ms)
+  ✔ is false for a stale admin entry whose account does not exist (3.8647ms)
+✔ isAdmin (10.1616ms)
+▶ addAdmin
+  ✔ promotes an existing account (2.0232ms)
+  ✔ refuses a nonexistent account (1.7339ms)
+  ✔ refuses someone who is already an admin and adds no duplicate (3.8531ms)
+✔ addAdmin (8.0697ms)
+▶ removeAdmin
+  ✔ demotes an admin when others remain (1.9884ms)
+  ✔ refuses to remove the last admin (1.9476ms)
+  ✔ refuses a user who is not an admin (2.2815ms)
+  ✔ refuses a nonexistent account (2.0599ms)
+✔ removeAdmin (9.0095ms)
+▶ removeAccount
+  ✔ refuses a nonexistent account (1.8534ms)
+  ✔ deletes a regular account (1.9547ms)
+  ✔ deletes an admin account and removes it from the admin list (1.9409ms)
+  ✔ refuses to delete the last admin and leaves everything intact (1.7294ms)
+  ✔ does not make a re-created account an admin if its name belonged to a deleted admin (1.8292ms)
+✔ removeAccount (9.979ms)
+▶ current user
+  ✔ is null when nobody is logged in (1.9321ms)
+  ✔ returns the user after setCurrentUser (1.7883ms)
+  ✔ clears a stale login when the account was deleted (2.0894ms)
+  ✔ removeCurrentUser logs the user out (1.5982ms)
+  ✔ removeCurrentUser is harmless when nobody is logged in (1.8925ms)
+✔ current user (9.9712ms)
+▶ isCurrentUserAdmin
+  ✔ is true when an admin is logged in (2.106ms)
+  ✔ is false when a regular user is logged in (1.4751ms)
+  ✔ is false when nobody is logged in (1.7427ms)
+  ✔ is false when the logged-in account no longer exists (2.1062ms)
+✔ isCurrentUserAdmin (8.0457ms)
+▶ getUserList
+  ✔ returns false when nobody is logged in (2.1516ms)
+  ✔ returns false for a regular user (1.5843ms)
+  ✔ returns every username for an admin (1.5522ms)
+✔ getUserList (8.3981ms)
+ℹ tests 43
+ℹ suites 11
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 522.6821
+ℹ start of coverage report
+ℹ ----------------------------------------------------------
+ℹ file      | line % | branch % | funcs % | uncovered lines
+ℹ ----------------------------------------------------------
+ℹ auth.js   |  98.82 |    97.62 |  100.00 | 21-22
+ℹ ----------------------------------------------------------
+ℹ all files |  98.82 |    97.62 |  100.00 | 
+ℹ ----------------------------------------------------------
+ℹ end of coverage report
+
+accounts //handles login and singup functionality and meshes with auth
+▶ ConfirmPassword
+  ✔ is true when both passwords match (4.4925ms)
+  ✔ is false when the passwords differ (1.6328ms)
+  ✔ is case sensitive (3.7965ms)
+✔ ConfirmPassword (13.3467ms)
+▶ CheckEmail
+  ✔ accepts an address with a listed domain (1.9864ms)
+  ✔ rejects an address with an unlisted domain (1.7894ms)
+  ✔ rejects text with no @ (1.5953ms)
+  ✔ uses the list it is given (1.5051ms)
+  ✔ rejects an uppercase domain (1.3981ms)
+✔ CheckEmail (9.0486ms)
+▶ onSignup
+  ✔ calls preventDefault (3.016ms)
+  ✔ asks for all fields when the email is blank or whitespace (1.7093ms)
+  ✔ asks for all fields when a password is missing (1.8933ms)
+  ✔ reports both problems when the email is invalid and the passwords differ (1.9585ms)
+  ✔ reports an invalid email (2.5642ms)
+  ✔ reports mismatched passwords (2.2495ms)
+  ✔ points an existing account to the login page (1.9847ms)
+  ✔ creates the account, sets the message and redirects on success (1.5062ms)
+  ✔ clears an earlier error message on a valid submit (1.7199ms)
+  ✔ creates nothing and does not redirect when validation fails (1.618ms)
+✔ onSignup (21.6393ms)
+▶ onLogin
+  ✔ calls preventDefault (2.6624ms)
+  ✔ asks for all fields when the email is blank (1.7295ms)
+  ✔ asks for all fields when the password is blank (1.3753ms)
+  ✔ rejects a wrong password without logging in or redirecting (1.583ms)
+  ✔ rejects an unknown user (1.4825ms)
+  ✔ logs in an admin and redirects to the admin dashboard (1.6226ms)
+  ✔ logs in a regular user and redirects to the user dashboard (1.549ms)
+✔ onLogin (12.9281ms)
+▶ page wiring
+  ✔ attaches onSignup to the signup form's submit event (1.8434ms)
+  ✔ attaches onLogin to the login form's submit event (2.153ms)
+  ✔ does not throw on a page with neither form (3.3323ms)
+  ✔ shows the account-created message once and removes it (2.0058ms)
+  ✔ leaves the element empty when there is no message (1.7513ms)
+✔ page wiring (11.9164ms)
+ℹ tests 30
+ℹ suites 5
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 411.0707
+ℹ start of coverage report
+ℹ ---------------------------------------------------------------
+ℹ file           | line % | branch % | funcs % | uncovered lines
+ℹ ---------------------------------------------------------------
+ℹ LogIn          |        |          |         | 
+ℹ  accounts.js   | 100.00 |   100.00 |  100.00 | 
+ℹ ---------------------------------------------------------------
+ℹ all files      | 100.00 |   100.00 |  100.00 | 
+ℹ ---------------------------------------------------------------
+ℹ end of coverage report
+user management //handles administrators promoting demoting admins and removing users.
+▶ access check on load
+  ✔ sends a non-admin to the login page (7.7316ms)
+  ✔ logs the permission denied message for a non-admin (2.4515ms)
+  ✔ renders nothing and attaches no click handler for a non-admin (3.9179ms)
+  ✔ does not redirect an admin (3.5266ms)
+  ✔ renders the users and attaches the click handler for an admin (2.0313ms)
+✔ access check on load (24.0754ms)
+▶ renderUsers
+  ✔ renders one card per user (2.5887ms)
+  ✔ renders nothing when there are no users (3.3701ms)
+  ✔ sets each card's data-username and visible name (1.8823ms)
+  ✔ labels admins as admin and everyone else as user (1.7734ms)
+  ✔ hides promote and shows demote for an admin (2.8356ms)
+  ✔ shows promote and hides demote for a regular user (2.0545ms)
+  ✔ replaces the old cards instead of adding to them (1.8505ms)
+✔ renderUsers (18.0793ms)
+▶ click handling
+  ✔ ignores clicks that are not on an action button (4.1735ms)
+  ✔ ignores an unknown action (2.7587ms)
+  ✔ redirects and does nothing else if the user is no longer an admin (3.4131ms)
+✔ click handling (11.1524ms)
+▶ promote action
+  ✔ promotes the clicked user and re-renders (2.3085ms)
+✔ promote action (2.6528ms)
+▶ demote action
+  ✔ demotes an admin when others remain and re-renders (2.3192ms)
+  ✔ shows an error and changes nothing when it is the last admin (2.7709ms)
+✔ demote action (5.5867ms)
+▶ delete action
+  ✔ asks for confirmation with the username (2.2563ms)
+  ✔ deletes the user and re-renders when confirmed (1.6162ms)
+  ✔ does nothing when the confirmation is cancelled (2.4018ms)
+  ✔ shows an error and keeps the user when the account cannot be deleted (2.0897ms)
+  ✔ does not clear an earlier error after a later successful action (1.8716ms)
+✔ delete action (11.0053ms)
+ℹ tests 23
+ℹ suites 6
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 418.9121
+ℹ start of coverage report
+ℹ ----------------------------------------------------------------------
+ℹ file                  | line % | branch % | funcs % | uncovered lines
+ℹ ----------------------------------------------------------------------
+ℹ Admin                 |        |          |         | 
+ℹ  user-management.js   | 100.00 |   100.00 |  100.00 | 
+ℹ ----------------------------------------------------------------------
+ℹ all files             | 100.00 |   100.00 |  100.00 | 
+ℹ ----------------------------------------------------------------------
+ℹ end of coverage report
