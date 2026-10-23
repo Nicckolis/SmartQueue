@@ -1,0 +1,77 @@
+▶ joinQueue: successful joins
+  [32m✔ returns the new entry and a zero wait for the first user [90m(6.983584ms)[39m[39m
+  [32m✔ saves unique entries with one arrival counter across services [90m(0.21075ms)[39m[39m
+  [32m✔ third user of the same service waits for two people ahead [90m(0.08725ms)[39m[39m
+  [32m✔ equal-priority services share arrival order and combined wait time [90m(0.405959ms)[39m[39m
+  [32m✔ a later arrival for a high-priority service moves to the front [90m(0.281542ms)[39m[39m
+  [32m✔ a medium-priority arrival goes after high and before low [90m(0.17375ms)[39m[39m
+  [32m✔ returns an entry copy that cannot change the stored entry [90m(0.150917ms)[39m[39m
+[32m✔ joinQueue: successful joins [90m(9.246667ms)[39m[39m
+▶ joinQueue: validation rules
+  [32m✔ rejects missing or invalid user IDs with 401 [90m(0.882833ms)[39m[39m
+  [32m✔ rejects missing or invalid service IDs with 400 [90m(0.223792ms)[39m[39m
+  [32m✔ rejects an unknown service with 404 [90m(0.082625ms)[39m[39m
+  [32m✔ rejects a closed service or one with no open flag [90m(0.133167ms)[39m[39m
+  [32m✔ rejects a second active entry for the same or another service [90m(0.138458ms)[39m[39m
+  [32m✔ rejects invalid selected-service durations with 500 [90m(0.197792ms)[39m[39m
+  [32m✔ rejects invalid arrival counters with 500 [90m(0.353333ms)[39m[39m
+  [32m✔ rejects a counter equal to or behind existing arrival orders [90m(0.161709ms)[39m[39m
+  [32m✔ leaves the store unchanged if priority validation fails [90m(0.089834ms)[39m[39m
+  [32m✔ leaves the store unchanged if a duration ahead is invalid [90m(0.081208ms)[39m[39m
+[32m✔ joinQueue: validation rules [90m(2.567125ms)[39m[39m
+▶ leaveQueue
+  [32m✔ removes only the leaving user and preserves the arrival counter [90m(0.169083ms)[39m[39m
+  [32m✔ returns nulls and changes nothing when the user is not queued [90m(0.067125ms)[39m[39m
+  [32m✔ allows leaving after the user's service closes [90m(0.048584ms)[39m[39m
+  [32m✔ rejoining another service receives a new arrival order [90m(0.059625ms)[39m[39m
+  [32m✔ rejects missing or invalid user IDs with 401 [90m(0.255875ms)[39m[39m
+  [32m✔ leaving reduces the position and wait of a user of another service [90m(0.072958ms)[39m[39m
+[32m✔ leaveQueue [90m(0.806625ms)[39m[39m
+▶ getOrderedQueue
+  [32m✔ combines all services and orders by priority, then arrival [90m(1.728625ms)[39m[39m
+  [32m✔ uses arrival order across different services with equal priority [90m(0.1015ms)[39m[39m
+  [32m✔ uses service priority instead of a legacy entry priority [90m(0.096333ms)[39m[39m
+  [32m✔ recalculates order after an administrator changes service priority [90m(0.095583ms)[39m[39m
+  [32m✔ preserves existing entries when their service is closed [90m(0.072417ms)[39m[39m
+  [32m✔ returns a new array without changing the original entries [90m(0.358834ms)[39m[39m
+  [32m✔ returns an empty array for an empty queue [90m(0.053667ms)[39m[39m
+  [32m✔ rejects a queue that is not an array [90m(0.27775ms)[39m[39m
+  [32m✔ rejects malformed service lists and duplicate service IDs [90m(0.145792ms)[39m[39m
+  [32m✔ rejects an entry whose service does not exist [90m(0.648875ms)[39m[39m
+  [32m✔ rejects invalid service priorities [90m(0.115459ms)[39m[39m
+  [32m✔ rejects invalid arrival orders [90m(0.1195ms)[39m[39m
+[32m✔ getOrderedQueue [90m(5.041375ms)[39m[39m
+▶ getQueuePosition
+  [32m✔ returns a 1-based global position using the user ID [90m(0.122708ms)[39m[39m
+  [32m✔ returns null when the user is absent or the queue is empty [90m(0.056ms)[39m[39m
+[32m✔ getQueuePosition [90m(0.251ms)[39m[39m
+▶ estimateWait
+  [32m✔ first in line waits zero minutes [90m(0.1185ms)[39m[39m
+  [32m✔ adds the different service durations ahead and excludes the user's own [90m(0.053375ms)[39m[39m
+  [32m✔ counts people ahead when everyone uses the same service [90m(0.043958ms)[39m[39m
+  [32m✔ returns null when there is no queue position [90m(0.037584ms)[39m[39m
+  [32m✔ rejects invalid positions [90m(0.12375ms)[39m[39m
+  [32m✔ rejects queue or service arguments that are not arrays [90m(0.054208ms)[39m[39m
+  [32m✔ rejects a missing service for someone ahead [90m(0.054709ms)[39m[39m
+  [32m✔ rejects invalid service durations for someone ahead [90m(0.10575ms)[39m[39m
+[32m✔ estimateWait [90m(0.719292ms)[39m[39m
+[34mℹ tests 45[39m
+[34mℹ suites 6[39m
+[34mℹ pass 45[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 90.530459[39m
+[34mℹ start of coverage report
+ℹ --------------------------------------------------------------------
+ℹ file                | [31mline %[34m | [31mbranch %[34m | [31mfuncs %[34m | uncovered lines
+ℹ --------------------------------------------------------------------
+ℹ Backend             | [31m      [34m | [31m        [34m | [31m       [34m | 
+ℹ  [32mqueue-actions.js  [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ  [32mqueue-helpers.js  [34m | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ --------------------------------------------------------------------
+ℹ all files           | [32m100.00[34m | [32m  100.00[34m | [32m 100.00[34m | 
+ℹ --------------------------------------------------------------------
+ℹ end of coverage report
+[39m

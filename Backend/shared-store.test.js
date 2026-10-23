@@ -45,6 +45,13 @@ afterEach(() => {
     }
 });
 
+function seed(value)
+{
+    const text = JSON.stringify(value);
+    memory.set(STORE_STORAGE_KEY, text);
+    return text;
+}
+
 test("default stores do not share mutable data", () => {
     const first = createDefaultStore();
     const second = createDefaultStore();
@@ -58,11 +65,14 @@ test("default stores do not share mutable data", () => {
     assert.equal(second.nextArrivalOrder, 1);
 });
 
-test("missing saved data returns defaults without writing storage", () => {
+test("missing saved data returns and saves defaults", () => {
     const result = loadStore();
 
     assert.deepEqual(result, createDefaultStore());
-    assert.equal(memory.has(STORE_STORAGE_KEY), false);
+    assert.deepEqual(
+        JSON.parse(memory.get(STORE_STORAGE_KEY)),
+        result
+    );
 });
 
 // Check that saving and loading keeps the services and the other shared fields.
@@ -120,9 +130,13 @@ test("saving and loading preserves services and other shared data", () => {
 
 test("empty service and queue arrays are valid saved data", () => {
     const emptyStore = {
-        services: [],
-        queueEntries: [],
-        nextArrivalOrder: 1
+    services: [],
+    queueEntries: [],
+    nextArrivalOrder: 1,
+    history: [],
+    nextHistoryId: 1,
+    notifications: [],
+    nextNotificationId: 1
     };
 
     saveStore(emptyStore);
@@ -159,28 +173,7 @@ for (const [label, value] of [
         nextArrivalOrder: 1
     }],
 
-    ["missing arrival counter", {
-        services: [],
-        queueEntries: []
-    }],
-
-    ["zero arrival counter", {
-        services: [],
-        queueEntries: [],
-        nextArrivalOrder: 0
-    }],
-
-    ["fractional arrival counter", {
-        services: [],
-        queueEntries: [],
-        nextArrivalOrder: 1.5
-    }],
-
-    ["text arrival counter", {
-        services: [],
-        queueEntries: [],
-        nextArrivalOrder: "1"
-    }]
+    
 ]) {
     test(`rejects ${label} without overwriting storage`, () => {
         const savedText = JSON.stringify(value);
@@ -189,7 +182,7 @@ for (const [label, value] of [
 
         assert.throws(
             () => loadStore(),
-            /Saved store is invalid/
+            /saved queue store has an invalid format/i
         );
 
         assert.equal(memory.get(STORE_STORAGE_KEY), savedText);
@@ -235,4 +228,172 @@ test("a failed save preserves previous data and the supplied store", () => {
 
     assert.equal(memory.get(STORE_STORAGE_KEY), originalText);
     assert.deepEqual(changed, changedBefore);
+});
+
+test("adds medium priority to older services but keeps assigned priorities", () => {
+    const store = createDefaultStore();
+    delete store.services[0].priority;
+    store.services[1].priority = "high";
+    seed(store);
+
+    const loaded = loadStore();
+
+    assert.equal(loaded.services[0].priority, "medium");
+    assert.equal(loaded.services[1].priority, "high");
+});
+
+test("moves a counter that is behind existing entries past them", () => {
+    const store = createDefaultStore();
+    store.queueEntries = [{ id: "e1", userId: "u1", serviceId: "service-1", arrivalOrder: 5, joinedAt: 100 }];
+    store.history = [{ id: 1, userId: "u1", serviceId: "service-1", outcome: "waiting" }];
+    store.nextArrivalOrder = 3;
+    store.nextHistoryId = 2;
+    seed(store);
+
+    assert.equal(loadStore().nextArrivalOrder, 6);
+});
+
+for (const [label, change, message] of [
+    ["service", s => { s.services = [null]; }, "A saved service is invalid."],
+    ["history", s => { s.history = {}; }, "Saved history or notifications have an invalid format."],
+    ["entry arrival order", s => { s.queueEntries = [{ id: "e1", userId: "u1", serviceId: "service-1", arrivalOrder: 0 }]; }, "Saved queue data contains an invalid arrivalOrder."],
+    ["history id", s => { s.history = [{ id: "x" }]; }, "Saved queue data contains an invalid id."],
+    ["notification id", s => { s.notifications = [{ id: 0 }]; }, "Saved queue data contains an invalid id."]
+]) {
+    test(`rejects an invalid saved ${label} without changing storage`, () => {
+        const store = createDefaultStore();
+        change(store);
+        const savedText = seed(store);
+
+        assert.throws(() => loadStore(), { message });
+        assert.equal(memory.get(STORE_STORAGE_KEY), savedText);
+    });
+}
+
+test("rejects a queued entry whose service no longer exists", () => {
+    const store = createDefaultStore();
+    store.queueEntries = [{ id: "e1", userId: "u1", serviceId: "gone", arrivalOrder: 1, joinedAt: 1 }];
+    store.nextArrivalOrder = 2;
+    const savedText = seed(store);
+
+    assert.throws(() => loadStore(), { status: 500 });
+    assert.equal(memory.get(STORE_STORAGE_KEY), savedText);
+});
+
+test("restores missing waiting history and keeps the original join time", () => {
+    const store = createDefaultStore();
+    store.queueEntries = [{ id: "e1", userId: "u1", serviceId: "service-2", arrivalOrder: 1, joinedAt: 1234 }];
+    store.nextArrivalOrder = 2;
+    seed(store);
+
+    const loaded = loadStore();
+    const visit = loaded.history.find(
+        item => item.userId === "u1" && item.outcome === "waiting"
+    );
+
+    assert.ok(visit);
+    assert.equal(visit.serviceId, "service-2");
+    assert.equal(visit.joinedAt, 1234);
+});
+
+test("rejects saved history that disagrees with the queue", () => {
+    const store = createDefaultStore();
+    store.queueEntries = [{ id: "e1", userId: "u1", serviceId: "service-1", arrivalOrder: 1, joinedAt: 1 }];
+    store.history = [{ id: 1, userId: "u1", serviceId: "service-2", outcome: "waiting" }];
+    store.nextArrivalOrder = 2;
+    store.nextHistoryId = 2;
+    const savedText = seed(store);
+
+    assert.throws(
+        () => loadStore(),
+        { message: "The saved queue and active history do not match." }
+    );
+    assert.equal(memory.get(STORE_STORAGE_KEY), savedText);
+});
+
+test("does not rewrite storage when nothing needs repair", () => {
+    seed(createDefaultStore());
+
+    let writes = 0;
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = (key, value) => {
+        writes += 1;
+        originalSetItem(key, value);
+    };
+
+    loadStore();
+
+    assert.equal(writes, 0);
+});
+
+for (const [label, counter] of [
+    ["missing", undefined],
+    ["zero", 0],
+    ["fractional", 1.5],
+    ["text", "1"]
+]) {
+    test("repairs a " + label + " arrival counter", () => {
+        const store = createDefaultStore();
+        store.nextArrivalOrder = counter;
+
+        saveStore(store);
+        const loaded = loadStore();
+
+        assert.equal(loaded.nextArrivalOrder, 1);
+        assert.deepEqual(
+            JSON.parse(memory.get(STORE_STORAGE_KEY)),
+            loaded
+        );
+    });
+}
+test("older queue data gains missing fields and history without duplication", () => {
+    const store = createDefaultStore();
+
+    delete store.services[0].priority;
+    store.services[1].priority = "high";
+    store.services[1].isOpen = false;
+
+    store.queueEntries = [{
+        id: "entry-1",
+        userId: "test-user",
+        serviceId: "service-1",
+        arrivalOrder: 7,
+        joinedAt: 123
+    }];
+
+    delete store.history;
+    delete store.nextHistoryId;
+    delete store.notifications;
+    delete store.nextNotificationId;
+
+    saveStore(store);
+    const loaded = loadStore();
+
+    assert.equal(loaded.services[0].priority, "medium");
+    assert.equal(loaded.services[1].priority, "high");
+    assert.equal(loaded.services[1].isOpen, false);
+    assert.deepEqual(loaded.queueEntries, store.queueEntries);
+    assert.equal(loaded.nextArrivalOrder, 8);
+
+    assert.deepEqual(loaded.history, [{
+        id: 1,
+        userId: "test-user",
+        serviceId: "service-1",
+        serviceName: store.services[0].name,
+        joinedAt: 123,
+        completedAt: null,
+        outcome: "waiting"
+    }]);
+
+    assert.equal(loaded.nextHistoryId, 2);
+    assert.deepEqual(loaded.notifications, []);
+    assert.equal(loaded.nextNotificationId, 1);
+
+    assert.deepEqual(
+        JSON.parse(memory.get(STORE_STORAGE_KEY)),
+        loaded
+    );
+
+    // Reloading must not create another history record.
+    assert.deepEqual(loadStore(), loaded);
 });

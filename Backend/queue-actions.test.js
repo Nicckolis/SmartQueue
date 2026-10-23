@@ -71,7 +71,7 @@ const SERVICE_MESSAGE = "Please select a service.";
 const CLOSED_MESSAGE = "This queue is closed to new arrivals.";
 
 const ALREADY_JOINED_MESSAGE =
-    "Leave your current queue before joining another.";
+    "You are already waiting in line. Leave before joining another service.";
 
 const DURATION_MESSAGE =
     "The service duration is not configured correctly.";
