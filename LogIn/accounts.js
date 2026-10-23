@@ -1,30 +1,3 @@
-/*class AccountManager {
-  #storageKey = "accounts";
-
-  #load() {
-    try {
-      return new Map(JSON.parse(localStorage.getItem(this.#storageKey)) || []);
-    } catch {
-      return new Map();
-    }
-  }
-
-  setAccount(username, password) {
-    const accounts = this.#load();
-    accounts.set(username, password);
-    localStorage.setItem(this.#storageKey, JSON.stringify([...accounts]));
-  }
-
-  checkAccount(username, password) {
-    const accounts = this.#load();
-    return accounts.has(username) && accounts.get(username) === password;
-  }
-
-  hasAccount(username) {
-  	return this.#load().has(username);
-  }
-}*/
-
 function ConfirmPassword(password, rpassword) {
 	if(password == rpassword)
 	{
