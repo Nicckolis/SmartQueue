@@ -3,12 +3,12 @@ import {
     estimateWait
 } from "./queue-helpers.js";
 
-import { completeEntry } from "../Kaylee Backend/history-actions.js";
+import { completeEntry } from "../History/history-actions.js";
 
 import {
     notifyServed,
     notifyPositionChange
-} from "../Kaylee Backend/notification-actions.js";
+} from "../Notifications/notification-actions.js";
 
 function adminError(status, message) {
     const error = new Error(message);

@@ -5,7 +5,7 @@ import { serveNextUser } from "./admin-queue-actions.js";
 import { createDefaultStore } from "./shared-store.js";
 import { joinQueue } from "./queue-actions.js";
 import { getOrderedQueue, estimateWait } from "./queue-helpers.js";
-import { recordJoin } from "../Kaylee Backend/history-actions.js";
+import { recordJoin } from "../History/history-actions.js";
 
 const admin = {
     getCurrentUser: () => "admin@example.com",
@@ -148,7 +148,8 @@ test("can serve a queued user when no history record exists", () => {
 
     assert.equal(served.userId, "test-alex");
     assert.equal(store.queueEntries.length, 0);
-    assert.equal(store.history, undefined);
+    // No history record was created for this visit.
+    assert.deepEqual(store.history, []);
 
     assert.ok(store.notifications.some(
         item => item.type === "served"

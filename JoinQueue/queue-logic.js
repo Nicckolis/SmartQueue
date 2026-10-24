@@ -15,18 +15,18 @@ import {
 import {
     recordJoin,
     completeEntry
-} from "../Kaylee Backend/history-actions.js";
+} from "../History/history-actions.js";
 
 import {
     notifyJoined,
     notifyLeft,
     getNotifications,
     getQueueStatus
-} from "../Kaylee Backend/notification-actions.js";
+} from "../Notifications/notification-actions.js";
 
 import {
     notifyQueueMovement
-} from "../Kaylee Backend/queue-status-actions.js";
+} from "../QueueSataus/queue-status-actions.js";
 
 
 const QUEUE_STORAGE_KEY = "queueSmart.currentQueue";

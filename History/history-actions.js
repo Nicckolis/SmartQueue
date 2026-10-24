@@ -1,4 +1,4 @@
-import { queueError } from "./errors.js";
+import { queueError } from "../errors.js";
 
 // Matches the History screen: served = "Picked up", left = "Cancelled".
 const HISTORY_OUTCOMES = ["waiting", "served", "left", "removed", "no-show"];

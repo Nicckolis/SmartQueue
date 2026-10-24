@@ -1,8 +1,8 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { joinQueue, leaveQueue } from "./queue-actions.js";
-import { recordJoin, completeEntry } from "./history-actions.js";
-import { getNotifications } from "./notification-actions.js";
+import { joinQueue, leaveQueue } from "../Backend/queue-actions.js";
+import { recordJoin, completeEntry } from "../History/history-actions.js";
+import { getNotifications } from "../Notifications/notification-actions.js";
 import {
     STATUS_NOTES,
     getUserQueueStatus,
@@ -13,8 +13,8 @@ function makeStore()
 {
     return {
         services: [
-            { id: "s1", name: "Advising", expectedDuration: 10, isOpen: true },
-            { id: "s2", name: "Registrar", expectedDuration: 5, isOpen: true }
+            { id: "s1", name: "Advising", expectedDuration: 10, priority: "medium", isOpen: true },
+            { id: "s2", name: "Registrar", expectedDuration: 5, priority: "medium", isOpen: true }
         ],
         queueEntries: [],
         nextArrivalOrder: 1
@@ -44,7 +44,7 @@ describe("getUserQueueStatus", () =>
             status: "waiting",
             position: 4,
             peopleAhead: 3,
-            waitMinutes: 40,
+            waitMinutes: 30,
             note: STATUS_NOTES.waiting
         });
     });
@@ -69,7 +69,36 @@ describe("getUserQueueStatus", () =>
         const status = getUserQueueStatus(store, "u4");
 
         assert.equal(status.position, 3);
-        assert.equal(status.waitMinutes, 30);
+        assert.equal(status.waitMinutes, 20);
+    });
+
+    test("uses arrival order and mixed durations across services", () =>
+    {
+        const store = makeStore();
+        joinQueue(store, "u1", "s2");
+        joinQueue(store, "u2", "s1");
+        joinQueue(store, "u3", "s2");
+
+        assert.equal(getUserQueueStatus(store, "u1").waitMinutes, 0);
+        const status = getUserQueueStatus(store, "u3");
+        assert.equal(status.position, 3);
+        assert.equal(status.peopleAhead, 2);
+        // The people ahead need 5 + 10 minutes; exclude u3's own service time.
+        assert.equal(status.waitMinutes, 15);
+    });
+
+    test("a later high-priority service moves ahead of a lower-priority service", () =>
+    {
+        const store = makeStore();
+        store.services[0].priority = "low";
+        store.services[1].priority = "high";
+        joinQueue(store, "u1", "s1");
+        joinQueue(store, "u2", "s2");
+
+        assert.equal(getUserQueueStatus(store, "u2").position, 1);
+        assert.equal(getUserQueueStatus(store, "u2").waitMinutes, 0);
+        assert.equal(getUserQueueStatus(store, "u1").position, 2);
+        assert.equal(getUserQueueStatus(store, "u1").waitMinutes, 5);
     });
 
     test("not in a queue and no history returns null", () =>
@@ -191,14 +220,24 @@ describe("notifyQueueMovement", () =>
         assert.equal(u3.length, 1);
     });
 
-    test("ignores other services' queues", () =>
+    test("updates users across services in the shared queue", () =>
     {
         const store = makeStore();
-        joinQueue(store, "u1", "s2");
-
+        joinQueue(store, "u1", "s1");
+        joinQueue(store, "u2", "s1");
+        joinQueue(store, "u3", "s2");
         notifyQueueMovement(store, "s1");
+        assert.equal(store.queueEntries[2].lastNotifiedPosition, 3);
+        assert.deepEqual(getNotifications(store, "u3"), []);
 
-        assert.equal(store.queueEntries[0].lastNotifiedPosition, undefined);
+        leaveQueue(store, "u1");
+        const created = notifyQueueMovement(store, "s1");
+        const note = created.find(item => item.userId === "u3");
+
+        assert.equal(note.type, "almost_ready");
+        assert.equal(note.serviceId, "s2");
+        assert.equal(store.queueEntries.find(item => item.userId === "u3").lastNotifiedPosition, 2);
+        assert.deepEqual(notifyQueueMovement(store, "s1"), []);
     });
 
     test("rejects an unknown service with 404", () =>

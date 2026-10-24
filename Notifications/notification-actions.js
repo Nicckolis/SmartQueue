@@ -1,4 +1,4 @@
-import { queueError } from "./errors.js";
+import { queueError } from "../errors.js";
 
 const NOTIFICATION_TYPES = [
     "joined",

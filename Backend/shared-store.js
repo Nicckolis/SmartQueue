@@ -1,6 +1,6 @@
 // These pages use the same localStorage key to read and save their shared data.
 import { getOrderedQueue } from "./queue-helpers.js";
-import { recordJoin } from "../Kaylee Backend/history-actions.js";
+import { recordJoin } from "../History/history-actions.js";
 
 const STORE_STORAGE_KEY = "queueSmart.store";
 

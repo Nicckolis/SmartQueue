@@ -1,7 +1,7 @@
-import { getOrderedQueue, getQueuePosition, estimateWait } from "./queue-helpers.js";
-import { queueError } from "./errors.js";
-import { getQueueStatus, notifyPositionChange } from "./notification-actions.js";
-import { getHistory } from "./history-actions.js";
+import { getOrderedQueue, getQueuePosition, estimateWait } from "../Backend/queue-helpers.js";
+import { queueError } from "../errors.js";
+import { getQueueStatus, notifyPositionChange } from "../Notifications/notification-actions.js";
+import { getHistory } from "../History/history-actions.js";
 
 // Text shown under the status badge on the Queue Status screen.
 const STATUS_NOTES = {
@@ -32,7 +32,7 @@ function getUserQueueStatus(store, userId)
             throw queueError(404, "Service not found.");
         }
 
-        const orderedQueue = getOrderedQueue(store.queueEntries, entry.serviceId);
+        const orderedQueue = getOrderedQueue(store.queueEntries, store.services);
         const position = getQueuePosition(orderedQueue, userId);
         const status = getQueueStatus(position);
 
@@ -43,7 +43,7 @@ function getUserQueueStatus(store, userId)
             status: status,
             position: position,
             peopleAhead: position - 1,
-            waitMinutes: estimateWait(position, service.expectedDuration),
+            waitMinutes: estimateWait(orderedQueue, position, store.services),
             note: STATUS_NOTES[status]
         };
     }
@@ -82,12 +82,14 @@ function notifyQueueMovement(store, serviceId)
     }
 
     const created = [];
-    const orderedQueue = getOrderedQueue(store.queueEntries, serviceId);
+    // A change to one service can move people waiting for other services too.
+    const orderedQueue = getOrderedQueue(store.queueEntries, store.services);
 
     orderedQueue.forEach((entry, index) =>
     {
+        const queuedService = store.services.find(item => item.id === entry.serviceId);
         const position = index + 1;
-        const waitMinutes = estimateWait(position, service.expectedDuration);
+        const waitMinutes = estimateWait(orderedQueue, position, store.services);
         const previous = entry.lastNotifiedPosition;
 
         if (previous === position)
@@ -106,7 +108,7 @@ function notifyQueueMovement(store, serviceId)
         }
 
         const note = notifyPositionChange(
-            store, entry.userId, serviceId, service.name, position, waitMinutes
+            store, entry.userId, entry.serviceId, queuedService.name, position, waitMinutes
         );
 
         if (note !== null)
