@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.5/phpunit.xsd"
+         bootstrap="../../Backend/queue-actions.php"
+         colors="true" cacheDirectory="../../build/queue-phpunit-cache">
+    <testsuites>
+        <testsuite name="queue-unit">
+            <file>QueueValidationTest.php</file>
+        </testsuite>
+        <testsuite name="queue-mysql">
+            <file>QueueActionsDatabaseTest.php</file>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include><file>../../Backend/queue-actions.php</file></include>
+    </source>
+</phpunit>
