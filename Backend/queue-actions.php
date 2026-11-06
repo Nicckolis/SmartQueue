@@ -6,7 +6,7 @@ class QueueActionException extends RuntimeException
 {
 }
 
-// The PDO connection must use PDO::ERRMODE_EXCEPTION.
+// Temp using PDO::ERRMODE_EXCEPTION for PDO connection.
 // This function starts and finishes its own transaction.
 function joinQueue(PDO $db, int $userId, int $serviceId): array
 {
@@ -169,7 +169,7 @@ function leaveQueue(PDO $db, int $userId): array
         // Leaving is allowed even when the service's queue is closed.
         $updateStatement = $db->prepare(
             "UPDATE QueueEntry
-             SET status = 'cancelled', completed_at = CURRENT_TIMESTAMP
+             SET status = 'left', completed_at = CURRENT_TIMESTAMP
              WHERE entry_id = ? AND user_id = ? AND status = 'waiting'"
         );
         $updateStatement->execute([$entry['entry_id'], $userId]);
@@ -181,7 +181,7 @@ function leaveQueue(PDO $db, int $userId): array
         $result = [
             'left' => true,
             'entryId' => (int) $entry['entry_id'],
-            'status' => 'cancelled',
+            'status' => 'left',
             'currentQueue' => null
         ];
 

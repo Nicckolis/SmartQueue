@@ -4,7 +4,7 @@ CREATE TABLE QueueEntry (
     entry_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     queue_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
-    status ENUM('waiting', 'served', 'cancelled', 'removed', 'no_show')
+    status ENUM('waiting', 'served', 'left', 'removed', 'no_show')
         NOT NULL DEFAULT 'waiting',
     joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_at DATETIME DEFAULT NULL,

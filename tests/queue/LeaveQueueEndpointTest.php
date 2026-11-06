@@ -63,13 +63,13 @@ final class LeaveQueueEndpointTest extends TestCase
             self::assertSame(200, $status);
             self::assertTrue($result['left']);
             self::assertSame($mine['entryId'], $result['entryId']);
-            self::assertSame('cancelled', $result['status']);
+            self::assertSame('left', $result['status']);
             self::assertNull($result['currentQueue']);
 
             $after = $observer->query($query)->fetchAll();
             self::assertCount(2, $after);
             self::assertSame($mine['entryId'], (int) $after[0]['entry_id']);
-            self::assertSame('cancelled', $after[0]['status']);
+            self::assertSame('left', $after[0]['status']);
             self::assertNotNull($after[0]['completed_at']);
             self::assertSame($before[1], $after[1], "Another user's visit changed.");
             $line = $observer->query('SELECT entry_id, `position`, wait_minutes FROM combined_waiting_line')->fetchAll();

@@ -152,7 +152,7 @@ PHP;
         checkThat(postQueue($leaveUrl, $sid, '{"userId":2}')[0] === 400, 'Leave must reject client userId.');
         [$status, $left] = postQueue($leaveUrl, $sid, '{}');
         checkThat($status === 200 && ($left['left'] ?? null) === true &&
-            ($left['entryId'] ?? null) === $q['entryId'] && ($left['status'] ?? null) === 'cancelled' &&
+            ($left['entryId'] ?? null) === $q['entryId'] && ($left['status'] ?? null) === 'left' &&
             array_key_exists('currentQueue', $left) && $left['currentQueue'] === null,
             "Expected the signed-in leave to cancel the joined entry; got HTTP $status.");
 
@@ -160,7 +160,7 @@ PHP;
         $historySql = 'SELECT entry_id, user_id, status, completed_at FROM QueueEntry ORDER BY entry_id';
         $history = $observer->query($historySql)->fetchAll();
         checkThat(count($history) === 1 && (int) $history[0]['entry_id'] === $q['entryId'] &&
-            (int) $history[0]['user_id'] === 1 && $history[0]['status'] === 'cancelled' &&
+            (int) $history[0]['user_id'] === 1 && $history[0]['status'] === 'left' &&
             $history[0]['completed_at'] !== null,
             'MySQL must keep the cancelled visit and its completion time.');
         checkThat((int) $observer->query('SELECT COUNT(*) FROM combined_waiting_line')->fetchColumn() === 0,

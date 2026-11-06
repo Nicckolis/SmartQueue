@@ -132,7 +132,7 @@ final class CurrentQueueEndpointTest extends TestCase
 
     public static function completedStatuses(): array
     {
-        return [['served'], ['cancelled'], ['removed'], ['no_show']];
+        return [['served'], ['left'], ['removed'], ['no_show']];
     }
 
     #[DataProvider('completedStatuses')]

@@ -81,13 +81,13 @@ final class QueueActionsDatabaseTest extends TestCase
 
         self::assertTrue($left['left']);
         self::assertSame($first['entryId'], $left['entryId']);
-        self::assertSame('cancelled', $left['status']);
+        self::assertSame('left', $left['status']);
         self::assertNull($left['currentQueue']);
         self::assertSame([], $this->line());
 
         $history = $this->visits(1);
         self::assertCount(1, $history);
-        self::assertSame('cancelled', $history[0]['status']);
+        self::assertSame('left', $history[0]['status']);
         self::assertNotNull($history[0]['completed_at']);
         self::assertSame(
             ['left' => false, 'entryId' => null, 'status' => null, 'currentQueue' => null],
@@ -105,7 +105,7 @@ final class QueueActionsDatabaseTest extends TestCase
         self::assertTrue(leaveQueue($this->db, 1)['left']);
         $next = joinQueue($this->db, 1, 2);
         self::assertNotSame($first['entryId'], $next['entryId']);
-        self::assertSame(['cancelled', 'waiting'], array_column($this->visits(1), 'status'));
+        self::assertSame(['left', 'waiting'], array_column($this->visits(1), 'status'));
         self::assertSame([], $this->visits(2));
     }
 
