@@ -180,4 +180,27 @@ final class QueueActionsDatabaseTest extends TestCase
         )->fetchAll(PDO::FETCH_NUM);
         return array_map(static fn(array $row): array => array_map('intval', $row), $rows);
     }
+
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
+    public function testSharedConnectionUsesTheConfiguredDatabase(): void
+    {
+        $expectedName = $this->db->query('SELECT DATABASE()')->fetchColumn();
+
+        // Use this test's temporary database and the same local MySQL credentials.
+        putenv('QUEUESMART_DB_NAME=' . $expectedName);
+        putenv('QUEUESMART_DB_HOST=127.0.0.1');
+        putenv('QUEUESMART_DB_PORT=3306');
+        putenv('QUEUESMART_DB_USER=' . (getenv('QUEUESMART_DB_USER') ?: 'root'));
+
+        $appDb = require dirname(__DIR__, 2) . '/Backend/db.php';
+
+        self::assertInstanceOf(PDO::class, $appDb);
+        self::assertSame($expectedName, $appDb->query('SELECT DATABASE()')->fetchColumn());
+
+        // A visit committed through one connection is visible through db.php.
+        $joined = joinQueue($this->db, 1, 1);
+        $current = getCurrentQueue($appDb, 1);
+        self::assertSame($joined['entryId'], $current['entryId'] ?? null);
+    }
 }

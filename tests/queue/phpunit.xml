@@ -26,6 +26,7 @@
             <file>../../Backend/leave-queue.php</file>
             <file>../../Backend/current-queue-request.php</file>
             <file>../../Backend/current-queue.php</file>
+            <file>../../Backend/db.php</file>
         </include>
     </source>
 </phpunit>
