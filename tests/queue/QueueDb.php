@@ -13,7 +13,7 @@ final class QueueDb
 
     public static function create(): self
     {
-        $schemaPath = dirname(__DIR__, 2) . '/database/queue-entries.sql';
+        $schemaPath = dirname(__DIR__, 2) . '/database/schema.sql';
         if (!is_readable($schemaPath)) {
             throw new RuntimeException("Missing required schema: $schemaPath");
         }
@@ -25,8 +25,8 @@ final class QueueDb
 
         try {
             $admin->exec("USE `$name`");
-            self::loadSql($admin, __DIR__ . '/parents.sql');
             self::loadSql($admin, $schemaPath);
+            self::loadSql($admin, __DIR__ . '/parents.sql');
             return new self($admin, $name, self::connect($name));
         } catch (Throwable $error) {
             $admin->exec("DROP DATABASE `$name`");

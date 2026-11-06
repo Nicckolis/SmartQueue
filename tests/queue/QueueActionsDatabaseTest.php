@@ -117,12 +117,14 @@ final class QueueActionsDatabaseTest extends TestCase
         self::assertSame([], $this->line());
     }
 
-    public function testInvalidConfiguredDurationDoesNotCreateAVisit(): void
+    public function testDatabaseRejectsZeroServiceDuration(): void
     {
-        // The parent fixture intentionally allows bad legacy service data.
-        $this->db->exec('UPDATE Service SET expected_duration_minutes = 0 WHERE service_id = 1');
-        $this->assertRejected(500, fn() => joinQueue($this->db, 1, 1));
-        self::assertSame([], $this->visits(1));
+        $this->expectException(PDOException::class);
+        $this->expectExceptionMessage('chk_service_duration');
+
+        $this->db->exec(
+            'UPDATE Service SET expected_duration_minutes = 0 WHERE service_id = 1'
+        );
     }
 
     public function testLeaveDoesNotRewriteAServedVisit(): void
