@@ -10,8 +10,22 @@
         <testsuite name="queue-mysql">
             <file>QueueActionsDatabaseTest.php</file>
         </testsuite>
+        <testsuite name="queue-endpoints">
+            <file>JoinQueueEndpointTest.php</file>
+            <file>LeaveQueueEndpointTest.php</file>
+            <file>CurrentQueueEndpointTest.php</file>
+            <file>QueueEntryPointTest.php</file>
+        </testsuite>
     </testsuites>
     <source>
-        <include><file>../../Backend/queue-actions.php</file></include>
+        <include>
+            <file>../../Backend/queue-actions.php</file>
+            <file>../../Backend/join-queue-request.php</file>
+            <file>../../Backend/join-queue.php</file>
+            <file>../../Backend/leave-queue-request.php</file>
+            <file>../../Backend/leave-queue.php</file>
+            <file>../../Backend/current-queue-request.php</file>
+            <file>../../Backend/current-queue.php</file>
+        </include>
     </source>
 </phpunit>

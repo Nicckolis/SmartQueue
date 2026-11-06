@@ -12,7 +12,7 @@
 
   <script src="../Notifications/notifications.js" defer></script>
   
-  <script type="module" src="queue-logic.js"></script>
+  <script type="module" src="join-page.js"></script>
 </head>
 
 <body>
@@ -47,6 +47,8 @@
             aria-describedby="queue-explanation"
             required
           >
+          <option value="">Choose a service</option>
+          <option value="1">Prescription Pickup</option>
             <option value="">Choose a service</option>
             <!-- queue-logic.js adds the saved services here. -->
           </select>

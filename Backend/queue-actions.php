@@ -196,3 +196,44 @@ function leaveQueue(PDO $db, int $userId): array
         throw $error;
     }
 }
+
+// Return the user's waiting visit, or null when none exists.
+function getCurrentQueue(PDO $db, int $userId): ?array
+{
+    if ($userId < 1) {
+        throw new QueueActionException('Please log in first.', 401);
+    }
+
+    // The view ranks the entire shared line before we select this user.
+    $statement = $db->prepare(
+        'SELECT u.user_id, v.entry_id, v.queue_id, v.service_id,
+                v.service_name, v.`position`, v.wait_minutes
+         FROM UserCredentials AS u
+         LEFT JOIN combined_waiting_line AS v ON v.user_id = u.user_id
+         WHERE u.user_id = ?'
+    );
+
+    $statement->execute([$userId]);
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+    // The account referenced by the session no longer exists.
+    if ($row === false) {
+        throw new QueueActionException('Please log in first.', 401);
+    }
+
+    // The account exists, but it has no waiting visit.
+    if ($row['entry_id'] === null) {
+        return null;
+    }
+
+    return [
+        'entryId' => (int) $row['entry_id'],
+        'queueId' => (int) $row['queue_id'],
+        'userId' => (int) $row['user_id'],
+        'serviceId' => (int) $row['service_id'],
+        'serviceName' => $row['service_name'],
+        'status' => 'waiting',
+        'position' => (int) $row['position'],
+        'waitMinutes' => (int) $row['wait_minutes']
+    ];
+}
