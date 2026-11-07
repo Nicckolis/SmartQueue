@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="../../Backend/service-actions.php" colors="true" cacheDirectory="../../build/service-phpunit-cache">
+    <testsuites>
+        <testsuite name="service-unit"><file>ServiceValidationTest.php</file><file>ServiceRequestTest.php</file><file>ServiceEntryPointTest.php</file></testsuite>
+        <testsuite name="service-mysql"><file>ServiceDatabaseTest.php</file><file>AdminDatabaseTest.php</file></testsuite>
+    </testsuites>
+    <source><include><file>../../Backend/service-actions.php</file><file>../../Backend/admin-auth.php</file><file>../../Backend/admin-queue-actions.php</file><file>../../Backend/service-request.php</file><file>../../Backend/service-endpoint.php</file></include></source>
+</phpunit>
