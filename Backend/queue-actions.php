@@ -193,7 +193,7 @@ function leaveQueue(PDO $db, int $userId): array
         // Leaving is allowed even when the service's queue is closed.
         $updateStatement = $db->prepare(
             "UPDATE QueueEntry
-             SET status = 'cancelled', completed_at = CURRENT_TIMESTAMP
+             SET status = 'left', completed_at = CURRENT_TIMESTAMP
              WHERE entry_id = ? AND user_id = ? AND status = 'waiting'"
         );
         $updateStatement->execute([$entry['entry_id'], $userId]);
