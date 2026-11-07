@@ -6,26 +6,44 @@
     <testsuites>
         <testsuite name="queue-unit">
             <file>QueueValidationTest.php</file>
+            <file>HistoryNotificationValidationTest.php</file>
         </testsuite>
         <testsuite name="queue-mysql">
             <file>QueueActionsDatabaseTest.php</file>
+            <file>HistoryActionsDatabaseTest.php</file>
+            <file>NotificationActionsDatabaseTest.php</file>
+            <file>QueueStatusActionsDatabaseTest.php</file>
         </testsuite>
         <testsuite name="queue-endpoints">
             <file>JoinQueueEndpointTest.php</file>
             <file>LeaveQueueEndpointTest.php</file>
             <file>CurrentQueueEndpointTest.php</file>
             <file>QueueEntryPointTest.php</file>
+            <file>HistoryEndpointTest.php</file>
+            <file>QueueStatusEndpointTest.php</file>
+            <file>NotificationEndpointTest.php</file>
         </testsuite>
     </testsuites>
     <source>
         <include>
             <file>../../Backend/queue-actions.php</file>
+            <file>../../Backend/history-actions.php</file>
+            <file>../../Backend/notification-actions.php</file>
+            <file>../../Backend/queue-status-actions.php</file>
             <file>../../Backend/join-queue-request.php</file>
             <file>../../Backend/join-queue.php</file>
             <file>../../Backend/leave-queue-request.php</file>
             <file>../../Backend/leave-queue.php</file>
             <file>../../Backend/current-queue-request.php</file>
             <file>../../Backend/current-queue.php</file>
+            <file>../../Backend/history-request.php</file>
+            <file>../../Backend/history.php</file>
+            <file>../../Backend/queue-status-request.php</file>
+            <file>../../Backend/queue-status.php</file>
+            <file>../../Backend/notifications-request.php</file>
+            <file>../../Backend/notifications.php</file>
+            <file>../../Backend/mark-notification-read.php</file>
+            <file>../../Backend/mark-all-notifications-read.php</file>
             <file>../../Backend/db.php</file>
         </include>
     </source>
