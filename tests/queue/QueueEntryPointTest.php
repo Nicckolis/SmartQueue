@@ -16,9 +16,19 @@ final class QueueEntryPointTest extends TestCase
             'GET cannot join'   => ['join-queue.php', 'GET', 405, 'Use POST to join a queue.'],
             'GET cannot leave'  => ['leave-queue.php', 'GET', 405, 'Use POST to leave the queue.'],
             'POST cannot read'  => ['current-queue.php', 'POST', 405, 'Use GET to check your current queue.'],
+                        'POST cannot read history' => ['history.php', 'POST', 405, 'Use GET to view your history.'],
+            'POST cannot read status' => ['queue-status.php', 'POST', 405, 'Use GET to check your queue status.'],
+            'POST cannot list notifications' => ['notifications.php', 'POST', 405, 'Use GET to read your notifications.'],
+            'GET cannot mark one notification' => ['mark-notification-read.php', 'GET', 405, 'Use POST to mark a notification read.'],
+            'GET cannot mark all notifications' => ['mark-all-notifications-read.php', 'GET', 405, 'Use POST to mark all notifications read.'],
             'anonymous join'    => ['join-queue.php', 'POST', 401, 'Please log in first.'],
             'anonymous leave'   => ['leave-queue.php', 'POST', 401, 'Please log in first.'],
             'anonymous lookup'  => ['current-queue.php', 'GET', 401, 'Please log in first.'],
+            'anonymous history' => ['history.php', 'GET', 401, 'Please log in first.'],
+            'anonymous status'  => ['queue-status.php', 'GET', 401, 'Please log in first.'],
+            'anonymous notifications' => ['notifications.php', 'GET', 401, 'Please log in first.'],
+            'anonymous mark one' => ['mark-notification-read.php', 'POST', 401, 'Please log in first.'],
+            'anonymous mark all' => ['mark-all-notifications-read.php', 'POST', 401, 'Please log in first.'],
         ];
     }
 
