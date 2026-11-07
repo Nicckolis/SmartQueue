@@ -1,8 +1,8 @@
 import { queueError } from "../errors.js";
 
-// Same values as QueueEntry.status in database/queue-entries.sql.
-// The History screen shows served as "Picked up" and cancelled as "Cancelled".
-const HISTORY_OUTCOMES = ["waiting", "served", "cancelled", "removed", "no_show"];
+// Same values as QueueEntry.status in database/schema.sql.
+// The History screen shows served as "Picked up" and left as "Cancelled".
+const HISTORY_OUTCOMES = ["waiting", "served", "left", "removed", "no_show"];
 
 
 function requireText(value, fieldName, maxLength)
@@ -78,7 +78,7 @@ function recordJoin(store, userId, serviceId, serviceName)
 }
 
 
-// Call when the user is served, cancels, is removed, or no-shows.
+// Call when the user is served, leaves, is removed, or no-shows.
 function completeEntry(store, userId, outcome)
 {
     const user = requireText(userId, "userId", 100);
