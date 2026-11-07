@@ -145,7 +145,8 @@ function startSession(): void
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
-    session_name('queue_sid');
+    // Use PHP's default session name (PHPSESSID) so the service and queue endpoints
+    // share this login session. Do not call session_name() here or anywhere else.
     session_start();
 }
  
