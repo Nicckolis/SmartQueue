@@ -119,16 +119,16 @@ const emails = [
     "bigpond.net.au"
 ]
 
-function onSignup(event) 
+async function onSignup(event) 
 {
   event.preventDefault();
-  const signEmail = document.getElementById("signemail").value;
+  const signEmail = document.getElementById("signemail").value.trim();
   const signPassword = document.getElementById("spassword").value;
   const signRPassword = document.getElementById("srpassword").value;
   const errorElement = document.getElementById("signError");
 
   errorElement.textContent = "";
-  if (!signEmail.trim() || !signPassword || !signRPassword) return errorElement.textContent = "Please fill in all fields.";
+  if (!signEmail || !signPassword || !signRPassword) return errorElement.textContent = "Please fill in all fields.";
   const correctEmail = CheckEmail(signEmail, emails);
   const matchPassword = ConfirmPassword(signPassword, signRPassword);
 
@@ -136,55 +136,63 @@ function onSignup(event)
   {
     errorElement.textContent = "Invalid email and passwords do not match.";
   } 
-
   else if (!correctEmail)
   {
     errorElement.textContent = "Please input a valid email.";
   } 
-    
   else if (!matchPassword) 
   {
     errorElement.textContent = "Passwords do not match.";  
   }
-
-  else if (accountStorage.hasAccount(signEmail)) 
+  else if (signPassword.length < 8)
   {
-    errorElement.innerHTML = `An account with this email already exists, try <a href="queue-login.html">loging in instead</a>`;
-  } 
-    
+    errorElement.textContent = "Password must be at least 8 characters.";
+  }
   else 
   {
-    accountStorage.setAccount(signEmail, signPassword);
-    sessionStorage.setItem("accountCreated", "Account Created!");
-    window.location.href = "queue-login.html";
+    // the server rejects duplicate emails itself, so no separate hasAccount check is needed
+    const created = await accountStorage.setAccount(signEmail, signPassword);
+    if (created)
+    {
+      sessionStorage.setItem("accountCreated", "Account Created!");
+      window.location.href = "queue-login.html";
+    }
+    else if ((accountStorage.lastError ?? "").includes("already registered"))
+    {
+      errorElement.innerHTML = `An account with this email already exists, try <a href="queue-login.html">loging in instead</a>`;
+    }
+    else
+    {
+      errorElement.textContent = accountStorage.lastError ?? "Could not create the account.";
+    }
   }
 }
 
-function onLogin(event) {
+async function onLogin(event) {
   event.preventDefault();
-  const logEmail = document.getElementById("logemail").value;
+  const logEmail = document.getElementById("logemail").value.trim();
   const logPassword = document.getElementById("lpassword").value;
   const errorElement = document.getElementById("logError");
 
   errorElement.textContent = "";
-  if (!logEmail.trim() || !logPassword) return errorElement.textContent = "Please fill in all fields.";
-  const correctLogin = accountStorage.checkAccount(logEmail, logPassword);
+  if (!logEmail || !logPassword) return errorElement.textContent = "Please fill in all fields.";
+  const correctLogin = await accountStorage.checkAccount(logEmail, logPassword);
 
   if(!correctLogin)
   {
     errorElement.innerHTML = `Incorrect Login, if this is your first time, <a href="queue-signup.html"> Make an account</a>`;
   }
-
-  else if(accountStorage.isAdmin(logEmail))
-  {
-    accountStorage.setCurrentUser(logEmail)
-    window.location.href = "../Admin/admin-dashboard.html"
-  }
-
   else
   {
-    accountStorage.setCurrentUser(logEmail);
-    window.location.href = "../UserDashboard/dashboard.html"
+    await accountStorage.setCurrentUser(logEmail);
+    if(await accountStorage.isAdmin(logEmail))
+    {
+      window.location.href = "../Admin/admin-dashboard.html";
+    }
+    else
+    {
+      window.location.href = "../UserDashboard/dashboard.html";
+    }
   }
 }
 
