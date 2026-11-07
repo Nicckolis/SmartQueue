@@ -223,3 +223,42 @@ function leaveQueue(PDO $db, int $userId): array
         throw $error;
     }
 }
+
+function getCurrentQueue(PDO $db, int $userId): ?array
+{
+    if ($userId < 1) {
+        throw new QueueActionException('Please log in first.', 401);
+    }
+
+    // The view calculates each user's position across the whole line.
+    $statement = $db->prepare(
+        'SELECT u.user_id, v.entry_id, v.queue_id, v.service_id,
+                v.service_name, v.`position`, v.wait_minutes
+         FROM UserCredentials AS u
+         LEFT JOIN combined_waiting_line AS v ON v.user_id = u.user_id
+         WHERE u.user_id = ?'
+    );
+    $statement->execute([$userId]);
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+    if ($row === false) {
+        // The session refers to an account that no longer exists.
+        throw new QueueActionException('Please log in first.', 401);
+    }
+
+    if ($row['entry_id'] === null) {
+        // The account exists, but the user is not waiting.
+        return null;
+    }
+
+    return [
+        'entryId'     => (int) $row['entry_id'],
+        'queueId'     => (int) $row['queue_id'],
+        'userId'      => (int) $row['user_id'],
+        'serviceId'   => (int) $row['service_id'],
+        'serviceName' => $row['service_name'],
+        'status'      => 'waiting',
+        'position'    => (int) $row['position'],
+        'waitMinutes' => (int) $row['wait_minutes']
+    ];
+}
