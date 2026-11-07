@@ -6,11 +6,15 @@ const NOTIFICATION_TYPES = [
     "almost_ready",
     "served",
     "left",
-    "removed"
+    "removed",
+    "no_show"
 ];
 
 // A user is "almost ready" when this position or closer to the front.
 const ALMOST_READY_THRESHOLD = 2;
+
+// Matches NotificationHistory.message VARCHAR(1000).
+const MAX_MESSAGE_LENGTH = 1000;
 
 // Oldest notifications are dropped past this limit (store lives in localStorage).
 const MAX_NOTIFICATIONS = 100;
@@ -73,7 +77,7 @@ function addNotification(store, userId, serviceId, type, message)
 {
     const user = requireText(userId, "userId", 100);
     const service = requireText(serviceId, "serviceId", 100);
-    const text = requireText(message, "message", 255);
+    const text = requireText(message, "message", MAX_MESSAGE_LENGTH);
 
     if (!NOTIFICATION_TYPES.includes(type))
     {
@@ -91,8 +95,8 @@ function addNotification(store, userId, serviceId, type, message)
         serviceId: service,
         type: type,
         message: text,
-        read: false,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        readAt: null // like NotificationHistory.read_at: empty until read
     };
 
     store.nextNotificationId += 1;
@@ -136,6 +140,15 @@ function notifyLeft(store, userId, serviceId, serviceName)
     return addNotification(
         store, userId, serviceId, "left",
         `You left the ${serviceName} queue.`
+    );
+}
+
+
+function notifyNoShow(store, userId, serviceId, serviceName)
+{
+    return addNotification(
+        store, userId, serviceId, "no_show",
+        `You were marked as a no-show for ${serviceName}.`
     );
 }
 
@@ -202,7 +215,7 @@ function getNotifications(store, userId, options = {})
 
     return store.notifications
         .filter(item => item.userId === user &&
-                        (options.unreadOnly !== true || !item.read))
+                        (options.unreadOnly !== true || item.readAt === null))
         .map(item => ({ ...item }))
         .sort((a, b) => b.id - a.id);
 }
@@ -222,7 +235,11 @@ function markRead(store, userId, notificationId)
         throw queueError(404, "Notification not found.");
     }
 
-    notification.read = true;
+    if (notification.readAt === null)
+    {
+        notification.readAt = Date.now();
+    }
+
     return { ...notification };
 }
 
@@ -237,9 +254,9 @@ function markAllRead(store, userId)
 
     for (const item of store.notifications)
     {
-        if (item.userId === user && !item.read)
+        if (item.userId === user && item.readAt === null)
         {
-            item.read = true;
+            item.readAt = Date.now();
             count += 1;
         }
     }
@@ -258,7 +275,10 @@ export {
     notifyServed,
     notifyLeft,
     notifyRemoved,
+    notifyNoShow,
+    MAX_MESSAGE_LENGTH,
     getNotifications,
     markRead,
     markAllRead
 };
+
