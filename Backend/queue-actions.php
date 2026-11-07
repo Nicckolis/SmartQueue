@@ -199,13 +199,14 @@ function leaveQueue(PDO $db, int $userId): array
         $updateStatement->execute([$entry['entry_id'], $userId]);
 
         if ($updateStatement->rowCount() !== 1) {
-            throw new RuntimeException('The waiting visit could not be cancelled.');
+            throw new RuntimeException('The waiting visit could not be marked as left.');
         }
 
         $result = [
             'left' => true,
             'entryId' => (int) $entry['entry_id'],
-            'status' => 'cancelled',
+            // QueueEntry.status is "left". The History page shows that as Cancelled.
+            'status' => 'left',
             'currentQueue' => null
         ];
 
