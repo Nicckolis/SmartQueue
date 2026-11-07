@@ -1,170 +1,122 @@
-class AccountManager 
+class AccountManager
 {
-    #storageKey = "accounts";
-    #adminKey = "admins";
-    #currentKey = "currentUser";
-
-    //constructor function sets default admin account
-    constructor()
+    #endpoint;
+ 
+    //message from the most recent failed request, handy for showing errors in the UI
+    lastError = null;
+ 
+    //the default admin account is now created by accounts.php on first run
+    constructor(endpoint = "accounts.php")
     {
-        this.setAccount("adminDefault@gmail.com","12345");
-        this.addAdmin("adminDefault@gmail.com");
+        this.#endpoint = endpoint;
     }
-
-    //helper function to handle local storage check for admins and regular accounts together
-    #readList(key) 
+ 
+    //helper function that replaces the localStorage read/save helpers; all server calls go through here
+    async #call(action, body = null)
     {
         try {
-            const data = JSON.parse(localStorage.getItem(key));
-            return Array.isArray(data) ? data : [];
-        } catch {
-            return [];
-        }
-    }
-
-    #load() 
-    {
-        return new Map(this.#readList(this.#storageKey));
-    }
-
-    #adminLoad()
-    {
-        return new Set(this.#readList(this.#adminKey));
-    }
-
-    //function to save regular account
-    #saveAccounts(accounts)
-    {
-        localStorage.setItem(this.#storageKey, JSON.stringify([...accounts]));
-    }
-
-    //function to save admins in local storage becuase JSON sucks and doesnt handle sets
-    #saveAdmins(admins) 
-    {
-        localStorage.setItem(this.#adminKey, JSON.stringify([...admins]));
-    }
-
-    setAccount(username, password) 
-    {
-        const accounts = this.#load();
-        accounts.set(username, btoa(password));
-        this.#saveAccounts(accounts);
-    }
-
-    addAdmin(username)
-    {
-        const adminAccounts = this.#adminLoad();
-        if(this.hasAccount(username) && !this.isAdmin(username))
-        {
-            adminAccounts.add(username);
-            this.#saveAdmins(adminAccounts);
-            return true;
-        }
-        else
-        {
-            return false;
-        }    
-    }
-
-    removeAccount(username)
-    {
-        const accounts = this.#load()
-        if(this.hasAccount(username))
-        {
-            if(this.isAdmin(username))
+            const options = { credentials: "same-origin" };
+            if(body !== null)
             {
-                if(!this.removeAdmin(username)) return false;
+                options.method = "POST";
+                options.headers = { "Content-Type": "application/json" };
+                options.body = JSON.stringify(body);
             }
-            accounts.delete(username)
-            this.#saveAccounts(accounts);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+            const response = await fetch(`${this.#endpoint}?action=${action}`, options);
+            const data = await response.json();
+            this.lastError = data.error ?? (data.ok ? null : "Request failed.");
+            return data;
+        } catch (err) {
+            console.error(`AccountManager: request to ${this.#endpoint}?action=${action} failed`, err);
+            this.lastError = "Could not reach the server.";
+            return { ok: false, error: this.lastError };
+}
+    }
+ 
+    //registers an account. profile is optional: { email, first_name, last_name, phone }
+    async setAccount(username, password, profile = {}) 
+    {
+        const res = await this.#call("register", { ...profile, username, password });
+        return res.ok === true;
+    }
+ 
+    async addAdmin(username)
+    {
+        const res = await this.#call("addAdmin", { username });
+        return res.ok === true && res.result === true;
+    }
+ 
+    async removeAccount(username)
+    {
+        const res = await this.#call("removeAccount", { username });
+        return res.ok === true && res.result === true;
     }
     
-    removeAdmin(username)
+    async removeAdmin(username)
     {
-        const adminAccounts = this.#adminLoad();
-        if(this.hasAccount(username) && this.isAdmin(username) && adminAccounts.size > 1)
-        {
-            adminAccounts.delete(username);
-            this.#saveAdmins(adminAccounts);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        const res = await this.#call("removeAdmin", { username });
+        return res.ok === true && res.result === true;
     }
-
-    checkAccount(username, password) 
+ 
+    //verifies the credentials; on success the server also starts the login session
+    async checkAccount(username, password) 
     {
-        const accounts = this.#load();
-        return accounts.has(username) && accounts.get(username) === btoa(password);
+        const res = await this.#call("login", { username, password });
+        return res.ok === true;
     }
-
-    hasAccount(username) 
+ 
+    //admin only on the server; non-admins always get false
+    async hasAccount(username) 
     {
-        return this.#load().has(username);
+        const res = await this.#call("hasAccount", { username });
+        return res.ok === true && res.result === true;
     }
-
-    isAdmin(username)
+ 
+    //works for admins, or when checking your own username
+    async isAdmin(username)
     {
-        return this.hasAccount(username) && this.#adminLoad().has(username);
+        const res = await this.#call("isAdmin", { username });
+        return res.ok === true && res.result === true;
     }
-
-    getCurrentUser()
+ 
+    async getCurrentUser()
     {
-        const username = localStorage.getItem(this.#currentKey);
-        if(username == null)
-        {
-            return null;
-        }
-        //handle deleted accounts
-        if(!this.hasAccount(username))
-        {
-            this.removeCurrentUser();
-            return null;
-        }
-        return username;
+        const res = await this.#call("currentUser");
+        return res.ok === true ? (res.username ?? null) : null;
     }
-
-    setCurrentUser(username)
+ 
+    //checkAccount already started the session, so this confirms it belongs to username
+    async setCurrentUser(username)
     {
-        localStorage.setItem(this.#currentKey,username);
+        const current = await this.getCurrentUser();
+        return current !== null && current.toLowerCase() === String(username).toLowerCase();
     }
-
-    removeCurrentUser()
+ 
+    //ends the server session
+    async removeCurrentUser()
     {
-        localStorage.removeItem(this.#currentKey);
+        await this.#call("logout", {});
     }
-
-    isCurrentUserAdmin()
+ 
+    async isCurrentUserAdmin()
     {
-        const username = localStorage.getItem(this.#currentKey);
-        if(this.isAdmin(username))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        const res = await this.#call("isCurrentUserAdmin");
+        return res.ok === true && res.isAdmin === true;
     }
-
-    getUserList()
+ 
+    //returns false for non-admins, otherwise an iterator of usernames (like Map.keys() did)
+    async getUserList()
     {
-        if(!this.isCurrentUserAdmin()) return false;
-        else
-        {
-            const accounts = this.#load();
-            return accounts.keys();
-        }
+        const res = await this.#call("getUserList", {});
+        if(res.ok !== true) return false;
+        return res.users.values();
     }
-
+ 
+    async logout()
+    {
+        await this.removeCurrentUser();
+        window.location.replace("LogIn/queue-login.html")
+    }
 }
-
-const accountStorage = new AccountManager();
+ 
+const accountStorage = new AccountManager(new URL("accounts.php", document.currentScript.src).href);
