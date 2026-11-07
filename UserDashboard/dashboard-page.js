@@ -47,3 +47,88 @@ window.addEventListener("pageshow", event => {
     if (event.persisted) refreshCurrentQueue();
 });
 refreshCurrentQueue();
+
+const notificationList = document.getElementById("notification-list");
+const markAllButton = document.getElementById("mark-all-notifications");
+
+function showNotificationMessage(text) {
+    notificationList.replaceChildren();
+    const item = document.createElement("li");
+    item.textContent = text;
+    notificationList.append(item);
+    if (markAllButton) markAllButton.disabled = true;
+}
+
+function renderNotificationList(notes) {
+    if (!Array.isArray(notes)) {
+        showNotificationMessage("The endpoint did not return a notifications list.");
+        return;
+    }
+
+    notificationList.replaceChildren();
+    let unread = 0;
+
+    for (const note of notes) {
+        if (!note || typeof note.message !== "string" || !Number.isSafeInteger(note.id)) {
+            continue;
+        }
+
+        const item = document.createElement("li");
+        if (note.read === true) {
+            item.className = "is-read";
+            item.textContent = note.message;
+        } else {
+            unread += 1;
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.id = String(note.id);
+            button.textContent = note.message;
+            button.title = "Mark as read";
+            item.append(button);
+        }
+        notificationList.append(item);
+    }
+
+    if (notificationList.children.length === 0) {
+        const item = document.createElement("li");
+        item.textContent = "No notifications yet.";
+        notificationList.append(item);
+    }
+
+    if (markAllButton) markAllButton.disabled = unread === 0;
+}
+
+if (notificationList) {
+    window.addEventListener("queue-notifications", event => {
+        renderNotificationList(event.detail);
+    });
+    window.addEventListener("queue-notifications-error", event => {
+        showNotificationMessage(event.detail || "Could not load your notifications.");
+    });
+
+    notificationList.addEventListener("click", async event => {
+        const button = event.target.closest("button[data-id]");
+        if (!button || typeof window.markQueueNotificationRead !== "function") return;
+        const id = Number(button.dataset.id);
+        button.disabled = true;
+        try {
+            await window.markQueueNotificationRead(id);
+        } catch (error) {
+            button.disabled = false;
+            showNotificationMessage(error.message || "Could not update that notification.");
+        }
+    });
+}
+
+if (markAllButton) {
+    markAllButton.addEventListener("click", async () => {
+        if (typeof window.markAllQueueNotificationsRead !== "function") return;
+        markAllButton.disabled = true;
+        try {
+            await window.markAllQueueNotificationsRead();
+        } catch (error) {
+            showNotificationMessage(error.message || "Could not update your notifications.");
+            markAllButton.disabled = false;
+        }
+    });
+}
