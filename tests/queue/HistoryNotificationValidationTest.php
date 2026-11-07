@@ -31,7 +31,8 @@ final class HistoryNotificationValidationTest extends TestCase
     {
         $db = $this->createStub(PDO::class);
 
-        $this->assertCode(400, fn() => getUserHistory($db, 1, 'left'));
+        // "cancelled" is only a History page label. The stored status is "left".
+        $this->assertCode(400, fn() => getUserHistory($db, 1, 'cancelled'));
         $this->assertCode(400, fn() => getUserHistory($db, 1, null, '   '));
         $this->assertCode(400, fn() => getUserHistory($db, 1, null, str_repeat('x', 101)));
         $this->assertCode(400, fn() => getUserHistory($db, 1, null, null, 0));
