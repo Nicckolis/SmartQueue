@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/queue-action-exception.php';
 
-// Same values as QueueEntry.status in database/queue-entries.sql.
-// The History screen shows served as "Picked up".
-const HISTORY_OUTCOMES = ['waiting', 'served', 'cancelled', 'removed', 'no_show'];
+// Same values as QueueEntry.status in database/schema.sql.
+// Leaving a queue stores "left". The History page labels that "Cancelled".
+const HISTORY_OUTCOMES = ['waiting', 'served', 'left', 'removed', 'no_show'];
 
 const MAX_HISTORY_SERVICE_NAME_LENGTH = 100;
 
