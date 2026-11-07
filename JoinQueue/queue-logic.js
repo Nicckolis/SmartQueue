@@ -457,7 +457,7 @@ function handleLeave()
             return;
         }
 
-        const visit = completeEntry(store, userId, "left");
+        const visit = completeEntry(store, userId, "cancelled");
 
         notifyLeft(
             store,
