@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QueueSmart - Queue Status</title>
 
-  <!-- Link your CSS files here -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="queue-status.css">
-  <link rel="stylesheet" href="notifications.css">
+  <link rel="stylesheet" href="../Notifications/notifications.css">
 
   <!-- notifications.js must load before any page script that calls showNotification() -->
-  <script src="notifications.js" defer></script>
+  <script src="../Notifications/notifications.js" defer></script>
   <script src="queue-status-logic.js" defer></script>
 </head>
 
@@ -19,10 +18,10 @@
   <header class="global-header">
     <h1>Queue<span class="smart">Smart</span></h1>
     <nav class="global-nav">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="join-queue.html">Join a queue</a>
+      <a href="../UserDashboard/dashboard.html">Dashboard</a>
+      <a href="../JoinQueue/join-queue.html">Join a queue</a>
       <a href="queue-status.html">Queue status</a>
-      <a href="history.html">History</a>
+      <a href="../History/history.html">History</a>
     </nav>
   </header>
 
@@ -30,28 +29,28 @@
     <h2>Your queue status</h2>
 
     <section class="status-card" id="status-card">
-      <p class="status-service">Service: <span id="status-service-name">New Prescription Fill</span></p>
+      <p class="status-service">Service: <span id="status-service-name">—</span></p>
 
       <div class="status-badge-row">
-        <span class="status-badge" id="status-badge" data-status="waiting">Waiting</span>
+        <span class="status-badge" id="status-badge">Loading…</span>
       </div>
 
       <div class="status-metrics">
         <div class="status-metric">
-          <span class="status-metric-value" id="status-position">4</span>
+          <span class="status-metric-value" id="status-position">—</span>
           <span class="status-metric-label">Position in line</span>
         </div>
         <div class="status-metric">
-          <span class="status-metric-value" id="status-wait">18 min</span>
+          <span class="status-metric-value" id="status-wait">—</span>
           <span class="status-metric-label">Estimated wait</span>
         </div>
       </div>
 
       <p class="status-note" id="status-note">
-        We'll notify you when you're almost up.
+        Loading your queue status…
       </p>
 
-      <button type="button" id="leave-queue" class="btn btn-secondary">
+      <button type="button" id="leave-queue" class="btn btn-secondary" disabled>
         Leave this queue
       </button>
     </section>
