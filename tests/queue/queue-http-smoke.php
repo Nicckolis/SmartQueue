@@ -56,9 +56,13 @@ function runQueueSmoke(): void {
         $backend = "$temp/www/Backend";
         checkThat(mkdir($backend, 0700, true) && mkdir("$temp/sessions", 0700),
             'Could not prepare the test folders.');
-        foreach (['queue-actions.php', 'join-queue-request.php', 'join-queue.php',
-                  'leave-queue-request.php', 'leave-queue.php',
-                  'current-queue-request.php', 'current-queue.php'] as $name) {
+        foreach ([
+            'queue-action-exception.php', 'notification-actions.php',
+            'history-actions.php', 'queue-status-actions.php', 'queue-actions.php',
+            'join-queue-request.php', 'join-queue.php',
+            'leave-queue-request.php', 'leave-queue.php',
+            'current-queue-request.php', 'current-queue.php'
+        ] as $name) {
             checkThat(copy(dirname(__DIR__, 2) . "/Backend/$name", "$backend/$name"),
                 "Missing required file: Backend/$name");
         }
