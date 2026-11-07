@@ -6,22 +6,22 @@ const mockHistory = [
   {
     service: "Prescription Pickup",
     date: "2026-09-28",
-    outcome: "picked-up",
+    outcome: "served",
   },
   {
     service: "New Prescription Fill",
     date: "2026-09-21",
-    outcome: "picked-up",
+    outcome: "served",
   },
   {
     service: "Vaccine / Injection",
     date: "2026-09-14",
-    outcome: "picked-up",
+    outcome: "served",
   },
   {
     service: "Pharmacist Consultation",
     date: "2026-09-10",
-    outcome: "no-show",
+    outcome: "no_show",
   },
   {
     service: "Prescription Pickup",
@@ -31,9 +31,10 @@ const mockHistory = [
 ];
 
 const outcomeLabels = {
-  "picked-up": "Picked up",
+  served: "Picked up",
   cancelled: "Cancelled",
-  "no-show": "No-show",
+  removed: "Removed",
+  no_show: "No-show",
 };
 
 function formatDate(isoDate) {
@@ -88,3 +89,4 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHistory(filtered);
   });
 });
+
