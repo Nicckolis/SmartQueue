@@ -8,6 +8,7 @@ import {
     notifyServed,
     notifyLeft,
     notifyRemoved,
+    notifyNoShow,
     getNotifications,
     markRead,
     markAllRead,
@@ -65,7 +66,7 @@ describe("adding notifications", () =>
         const second = notifyLeft(store, "u1", "s1", "Advising");
 
         assert.equal(first.type, "joined");
-        assert.equal(first.read, false);
+        assert.equal(first.readAt, null);
         assert.match(first.message, /Advising.*Position: 3.*30 minutes/);
         assert.equal(first.id, 1);
         assert.equal(second.id, 2);
@@ -84,14 +85,45 @@ describe("adding notifications", () =>
         );
     });
 
+    test("no-show message uses the no_show type", () =>
+    {
+        const store = makeStore();
+        const note = notifyNoShow(store, "u1", "s1", "Advising");
+
+        assert.equal(note.type, "no_show");
+        assert.match(note.message, /no-show.*Advising/);
+    });
+
+    test("accepts a message of exactly 1000 characters", () =>
+    {
+        const store = makeStore();
+
+        assert.equal(
+            addNotification(store, "u1", "s1", "joined", "x".repeat(1000)).message.length,
+            1000
+        );
+    });
+
+    test("markRead keeps the first read time", () =>
+    {
+        const store = makeStore();
+        const note = notifyJoined(store, "u1", "s1", "A", 1, 5);
+
+        const first = markRead(store, "u1", note.id);
+        const second = markRead(store, "u1", note.id);
+
+        assert.equal(typeof first.readAt, "number");
+        assert.equal(second.readAt, first.readAt);
+    });
+
     test("returns a copy, not the stored object", () =>
     {
         const store = makeStore();
         const result = notifyJoined(store, "u1", "s1", "A", 1, 5);
 
-        result.read = true;
+        result.readAt = Date.now();
 
-        assert.equal(store.notifications[0].read, false);
+        assert.equal(store.notifications[0].readAt, null);
     });
 
     test("repairs a bad notification counter", () =>
@@ -230,7 +262,7 @@ describe("reading and marking notifications", () =>
 
         assertRejected(() => markRead(store, "u2", note.id), 404, /not found/);
         assertRejected(() => markRead(store, "u1", 999), 404, /not found/);
-        assert.equal(store.notifications[0].read, false);
+        assert.equal(store.notifications[0].readAt, null);
     });
 
     test("markAllRead returns how many changed", () =>
@@ -243,7 +275,7 @@ describe("reading and marking notifications", () =>
 
         assert.equal(markAllRead(store, "u1"), 2);
         assert.equal(markAllRead(store, "u1"), 0);
-        assert.equal(store.notifications[2].read, false);
+        assert.equal(store.notifications[2].readAt, null);
     });
 });
 
@@ -266,9 +298,9 @@ describe("notification validation", () =>
         assertRejected(() => addNotification(store, "u1", "s1", "nope", "x"), 400, /type must be one of/);
         assertRejected(() => addNotification(store, "u1", "s1", "joined", ""), 400, /message is required/);
         assertRejected(
-            () => addNotification(store, "u1", "s1", "joined", "x".repeat(256)),
+            () => addNotification(store, "u1", "s1", "joined", "x".repeat(1001)),
             400,
-            /at most 255/
+            /at most 1000/
         );
     });
 
@@ -282,3 +314,4 @@ describe("notification validation", () =>
         assert.deepEqual(store, before);
     });
 });
+
