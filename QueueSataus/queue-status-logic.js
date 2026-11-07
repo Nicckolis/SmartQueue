@@ -4,20 +4,20 @@
 
 const mockQueueEntry = {
   service: "New Prescription Fill",
-  status: "waiting", // "waiting" | "almost-ready" | "served"
+  status: "waiting", // "waiting" | "almost_ready" | "served"
   position: 4,
   estimatedWaitMinutes: 18,
 };
 
 const statusLabels = {
   waiting: "Waiting",
-  "almost-ready": "Almost ready",
+  "almost_ready": "Almost ready",
   served: "Served",
 };
 
 const statusNotes = {
   waiting: "We'll notify you when you're almost up.",
-  "almost-ready": "You're almost up — please head to the counter.",
+  "almost_ready": "You're almost up — please head to the counter.",
   served: "You've been served. Thanks for waiting!",
 };
 
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderQueueStatus(mockQueueEntry);
 
   // Notify the user when a status change needs their attention.
-  if (mockQueueEntry.status === "almost-ready") {
+  if (mockQueueEntry.status === "almost_ready") {
     showNotification("You're almost up — please head to the counter.", "success");
   }
 
