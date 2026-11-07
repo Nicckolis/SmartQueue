@@ -40,7 +40,7 @@
   color: #60002E;
 }
 
-.status-badge[data-status="almost-ready"] {
+.status-badge[data-status="almost_ready"] {
   background: #C106D6;
   color: white;
 }
