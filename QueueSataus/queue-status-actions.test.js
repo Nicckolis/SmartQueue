@@ -128,7 +128,7 @@ describe("getUserQueueStatus", () =>
     {
         const store = makeStore();
         recordJoin(store, "u1", "s1", "Advising");
-        completeEntry(store, "u1", "left");
+        completeEntry(store, "u1", "cancelled");
 
         assert.equal(getUserQueueStatus(store, "u1"), null);
     });
