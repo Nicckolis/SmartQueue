@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-// Expected failures that a future API handler can report to the user.
-class QueueActionException extends RuntimeException
-{
-}
+// QueueActionException lives in its own file so every Backend module can use it.
+require_once __DIR__ . '/queue-action-exception.php';
+require_once __DIR__ . '/notification-actions.php';
+require_once __DIR__ . '/queue-status-actions.php';
 
-// Temp using PDO::ERRMODE_EXCEPTION for PDO connection.
+// The PDO connection must use PDO::ERRMODE_EXCEPTION.
 // This function starts and finishes its own transaction.
 function joinQueue(PDO $db, int $userId, int $serviceId): array
 {
@@ -63,6 +63,9 @@ function joinQueue(PDO $db, int $userId, int $serviceId): array
             );
         }
 
+        // Remember everyone's place so we can tell who moves after this join.
+        $positionsBefore = snapshotWaitingPositions($db);
+
         // Defaults supply status = waiting and the current join time.
         // uq_one_waiting_visit prevents a second waiting visit for this user.
         $insertStatement = $db->prepare(
@@ -97,7 +100,14 @@ function joinQueue(PDO $db, int $userId, int $serviceId): array
             'waitMinutes' => (int) $currentQueue['wait_minutes']
         ];
 
-        // Database notification insert can be added before this commit.
+        // Notifications commit or roll back together with the join itself.
+        notifyJoined(
+            $db, $result['entryId'], $result['serviceName'],
+            $result['position'], $result['waitMinutes']
+        );
+        // Joining can push users of other services back.
+        notifyQueueMovement($db, $positionsBefore);
+
         $db->commit();
         return $result;
     } catch (Throwable $error) {
@@ -166,10 +176,24 @@ function leaveQueue(PDO $db, int $userId): array
             ];
         }
 
+        // Look up the service name without locking more rows than above.
+        $nameStatement = $db->prepare(
+            'SELECT s.name
+             FROM QueueEntry AS e
+             JOIN `Queue` AS q ON q.queue_id = e.queue_id
+             JOIN Service AS s ON s.service_id = q.service_id
+             WHERE e.entry_id = ?'
+        );
+        $nameStatement->execute([$entry['entry_id']]);
+        $serviceName = (string) $nameStatement->fetchColumn();
+
+        // Remember everyone's place so we can tell who moves up.
+        $positionsBefore = snapshotWaitingPositions($db);
+
         // Leaving is allowed even when the service's queue is closed.
         $updateStatement = $db->prepare(
             "UPDATE QueueEntry
-             SET status = 'left', completed_at = CURRENT_TIMESTAMP
+             SET status = 'cancelled', completed_at = CURRENT_TIMESTAMP
              WHERE entry_id = ? AND user_id = ? AND status = 'waiting'"
         );
         $updateStatement->execute([$entry['entry_id'], $userId]);
@@ -181,11 +205,14 @@ function leaveQueue(PDO $db, int $userId): array
         $result = [
             'left' => true,
             'entryId' => (int) $entry['entry_id'],
-            'status' => 'left',
+            'status' => 'cancelled',
             'currentQueue' => null
         ];
 
-        // Database notification insert can be added before this commit.
+        // Notifications commit or roll back together with the leave itself.
+        notifyLeft($db, (int) $entry['entry_id'], $serviceName);
+        notifyQueueMovement($db, $positionsBefore);
+
         $db->commit();
         return $result;
     } catch (Throwable $error) {
@@ -195,45 +222,4 @@ function leaveQueue(PDO $db, int $userId): array
 
         throw $error;
     }
-}
-
-// Return the user's waiting visit, or null when none exists.
-function getCurrentQueue(PDO $db, int $userId): ?array
-{
-    if ($userId < 1) {
-        throw new QueueActionException('Please log in first.', 401);
-    }
-
-    // The view ranks the entire shared line before we select this user.
-    $statement = $db->prepare(
-        'SELECT u.user_id, v.entry_id, v.queue_id, v.service_id,
-                v.service_name, v.`position`, v.wait_minutes
-         FROM UserCredentials AS u
-         LEFT JOIN combined_waiting_line AS v ON v.user_id = u.user_id
-         WHERE u.user_id = ?'
-    );
-
-    $statement->execute([$userId]);
-    $row = $statement->fetch(PDO::FETCH_ASSOC);
-
-    // The account referenced by the session no longer exists.
-    if ($row === false) {
-        throw new QueueActionException('Please log in first.', 401);
-    }
-
-    // The account exists, but it has no waiting visit.
-    if ($row['entry_id'] === null) {
-        return null;
-    }
-
-    return [
-        'entryId' => (int) $row['entry_id'],
-        'queueId' => (int) $row['queue_id'],
-        'userId' => (int) $row['user_id'],
-        'serviceId' => (int) $row['service_id'],
-        'serviceName' => $row['service_name'],
-        'status' => 'waiting',
-        'position' => (int) $row['position'],
-        'waitMinutes' => (int) $row['wait_minutes']
-    ];
 }
