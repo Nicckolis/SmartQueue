@@ -5,7 +5,7 @@ require_once __DIR__ . '/QueueDatabaseTestCase.php';
 
 final class HistoryActionsDatabaseTest extends QueueDatabaseTestCase
 {
-    // User 1 has a served visit, a cancelled visit, then a waiting visit.
+    // User 1 has a served visit, a left visit, then a waiting visit.
     private function seed(): void
     {
         $served = joinQueue($this->db, 1, 1)['entryId'];
@@ -23,7 +23,7 @@ final class HistoryActionsDatabaseTest extends QueueDatabaseTestCase
         $history = getUserHistory($this->db, 1);
 
         self::assertSame(
-            ['waiting', 'cancelled', 'served'], array_column($history, 'outcome')
+            ['waiting', 'left', 'served'], array_column($history, 'outcome')
         );
         self::assertSame(
             ['Prescription Pickup', 'Consultation', 'Prescription Pickup'],
@@ -41,7 +41,7 @@ final class HistoryActionsDatabaseTest extends QueueDatabaseTestCase
         $this->seed();
 
         self::assertCount(1, getUserHistory($this->db, 1, 'served'));
-        self::assertCount(1, getUserHistory($this->db, 1, 'cancelled'));
+        self::assertCount(1, getUserHistory($this->db, 1, 'left'));
         self::assertSame([], getUserHistory($this->db, 1, 'no_show'));
         self::assertCount(2, getUserHistory($this->db, 1, null, 'Prescription Pickup'));
         self::assertCount(1, getUserHistory($this->db, 1, 'served', 'Prescription Pickup'));
