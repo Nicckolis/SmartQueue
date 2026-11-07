@@ -87,22 +87,22 @@ describe("completeEntry", () =>
         recordJoin(store, "u1", "s1", "A");
         recordJoin(store, "u2", "s1", "A");
 
-        completeEntry(store, "u2", "cancelled");
+        completeEntry(store, "u2", "left");
 
         assert.equal(store.history[0].outcome, "waiting");
-        assert.equal(store.history[1].outcome, "cancelled");
+        assert.equal(store.history[1].outcome, "left");
     });
 
     test("rejects when there is no active entry with 404", () =>
     {
         const store = makeStore();
 
-        assertRejected(() => completeEntry(store, "u1", "cancelled"), 404, /No active queue entry/);
+        assertRejected(() => completeEntry(store, "u1", "left"), 404, /No active queue entry/);
 
         recordJoin(store, "u1", "s1", "A");
         completeEntry(store, "u1", "served");
 
-        assertRejected(() => completeEntry(store, "u1", "cancelled"), 404, /No active queue entry/);
+        assertRejected(() => completeEntry(store, "u1", "left"), 404, /No active queue entry/);
     });
 
     test("rejects waiting or unknown outcomes with 400", () =>
@@ -112,7 +112,7 @@ describe("completeEntry", () =>
 
         assertRejected(() => completeEntry(store, "u1", "waiting"), 400, /outcome must be one of/);
         assertRejected(() => completeEntry(store, "u1", "bogus"), 400, /outcome must be one of/);
-        assertRejected(() => completeEntry(store, "", "cancelled"), 400, /userId/);
+        assertRejected(() => completeEntry(store, "", "left"), 400, /userId/);
         assert.equal(store.history[0].outcome, "waiting");
     });
 
@@ -136,7 +136,7 @@ describe("getHistory", () =>
         recordJoin(store, "u1", "s1", "Advising");
         completeEntry(store, "u1", "served");
         recordJoin(store, "u1", "s2", "Registrar");
-        completeEntry(store, "u1", "cancelled");
+        completeEntry(store, "u1", "left");
         recordJoin(store, "u1", "s1", "Advising");
         recordJoin(store, "u2", "s1", "Advising");
 
@@ -149,7 +149,7 @@ describe("getHistory", () =>
 
         assert.deepEqual(
             result.map(item => item.outcome),
-            ["waiting", "cancelled", "served"]
+            ["waiting", "left", "served"]
         );
     });
 
