@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/admin-auth.php';
 require_once __DIR__ . '/admin-queue-actions.php';
+require_once __DIR__ . '/notification-actions.php';
 
 // Return an HTTP status and JSON data
 function handleServiceRequest(string $action, string $method, string $contentType,
@@ -46,7 +47,16 @@ function handleServiceRequest(string $action, string $method, string $contentTyp
             'create' => [201, ['service' => createService($db, $admin, $data)]],
             'update' => [200, ['service' => updateService($db, $admin, $data['serviceId'], $data)]],
             'set-open' => [200, ['service' => setServiceOpen($db, $admin, $data['serviceId'], $data['isOpen'])]],
-            'serve-next' => [200, ['served' => serveNextUser($db, $admin)]],
+            'serve-next' => [200, ['served' => serveNextUser($db, $admin,
+                static function (PDO $db, array $served, array $remaining): void {
+                    // Save the alerts before Serve Next commits the changes
+                    notifyServed($db, $served['entryId'], $served['serviceName']);
+                    foreach ($remaining as $entry) {
+                        notifyPositionChange($db, $entry['entryId'], $entry['serviceName'],
+                            $entry['position'], $entry['waitMinutes']);
+                    }
+                }
+            )]],
             'queue' => [200, ['queue' => listAdminQueue($db, $admin)]],
             'list' => [200, ['services' => listServices($db, $admin)]]
         };
