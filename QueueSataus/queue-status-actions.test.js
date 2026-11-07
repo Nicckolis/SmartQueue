@@ -124,11 +124,11 @@ describe("getUserQueueStatus", () =>
         });
     });
 
-    test("returns null if the latest visit was cancelled", () =>
+    test("returns null if the latest visit was left", () =>
     {
         const store = makeStore();
         recordJoin(store, "u1", "s1", "Advising");
-        completeEntry(store, "u1", "cancelled");
+        completeEntry(store, "u1", "left");
 
         assert.equal(getUserQueueStatus(store, "u1"), null);
     });
