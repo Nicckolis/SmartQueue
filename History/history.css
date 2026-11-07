@@ -59,6 +59,7 @@
   color: #60002E;
 }
 
+.history-outcome[data-outcome="left"],
 .history-outcome[data-outcome="cancelled"],
 .history-outcome[data-outcome="no_show"],
 .history-outcome[data-outcome="removed"] {
@@ -72,6 +73,12 @@
   margin-top: 24px;
 }
 
+
+.history-empty {
+  text-align: center;
+  color: #60002E;
+  margin-top: 24px;
+}
 
 .history-empty {
   text-align: center;
