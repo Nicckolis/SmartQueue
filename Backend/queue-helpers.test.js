@@ -170,7 +170,7 @@ describe("getOrderedQueue", () =>
         assert.deepEqual(entries, before);
         assert.notStrictEqual(result, entries);
 
-        // C's notification code needs the same entry objects
+        // Notification code needs the same entry objects
         // so it can update lastNotifiedPosition.
         assert.strictEqual(result[0], entries[1]);
         assert.strictEqual(result[1], entries[0]);

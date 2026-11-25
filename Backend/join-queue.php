@@ -9,7 +9,7 @@ require_once __DIR__ . '/join-queue-request.php';
     $_SERVER['CONTENT_TYPE'] ?? '',
     file_get_contents('php://input'),
 
-    // Read the identity saved by A's login.
+    // Read the identity saved by the login.
     static function () {
         if (session_status() !== PHP_SESSION_ACTIVE &&
             !session_start(['read_and_close' => true])) {

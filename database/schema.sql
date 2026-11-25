@@ -70,6 +70,7 @@ CREATE TABLE QueueEntry (
     status       ENUM('waiting', 'served', 'left', 'removed', 'no_show') NOT NULL DEFAULT 'waiting',
     joined_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_at DATETIME NULL DEFAULT NULL,
+    people_ahead_at_join INT UNSIGNED NULL DEFAULT NULL,
 
     -- A user can have only one waiting visit across all services. Completed visits
     -- generate NULL, allowing the same user to keep history and join again later.
@@ -81,6 +82,7 @@ CREATE TABLE QueueEntry (
     UNIQUE KEY uq_one_waiting_visit (waiting_user_id),
     KEY ix_entry_user_history (user_id, joined_at, entry_id),
     KEY ix_entry_status_arrival (status, entry_id),
+    KEY ix_entry_queue_joined (queue_id, joined_at),
     CONSTRAINT fk_entry_queue FOREIGN KEY (queue_id) REFERENCES `Queue` (queue_id),
     CONSTRAINT fk_entry_user FOREIGN KEY (user_id) REFERENCES UserCredentials (user_id),
     CONSTRAINT chk_visit_completion CHECK (

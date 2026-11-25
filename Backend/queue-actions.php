@@ -100,6 +100,15 @@ function joinQueue(PDO $db, int $userId, int $serviceId): array
             'waitMinutes' => (int) $currentQueue['wait_minutes']
         ];
 
+        // Save how many people were ahead when this user joined.
+        $peopleAheadAtJoin = $result['position'] - 1;
+        $savePeopleAhead = $db->prepare(
+            'UPDATE QueueEntry
+            SET people_ahead_at_join = ?
+            WHERE entry_id = ?'
+        );
+        $savePeopleAhead->execute([$peopleAheadAtJoin, $result['entryId']]);
+        
         // Notifications commit or roll back together with the join itself.
         notifyJoined(
             $db, $result['entryId'], $result['serviceName'],
