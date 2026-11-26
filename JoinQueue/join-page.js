@@ -10,6 +10,92 @@ let known = false;
 let busy = false;
 let offers = new Map(); // Numeric database IDs are strings only inside the <select>.
 
+const quietButton = document.getElementById("suggest-quieter-time");
+const quietResult = document.getElementById("quieter-result");
+
+let quietServiceId = "";
+let quietVersion = 0;
+let quietLoading = false;
+
+function updateQuietControls() {
+    if (!quietButton || !quietResult) return;
+
+    // A suggestion is available whenever the selected service can be joined.
+    const id = joinButton.disabled ? "" : service.value;
+
+    if (id !== quietServiceId) {
+        quietServiceId = id;
+        quietVersion++;
+        quietLoading = false;
+        quietResult.textContent = "";
+    }
+
+    quietButton.disabled = !id || quietLoading;
+}
+
+function quietHour(slot) {
+    const days = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays",
+                  "Fridays", "Saturdays", "Sundays"];
+
+    const hourLabel = value => {
+        const hour = value % 24;
+        return `${hour % 12 || 12} ${hour < 12 ? "a.m." : "p.m."}`;
+    };
+
+    return `${days[slot.weekday]}, ${hourLabel(slot.hour)}–${hourLabel(slot.hour + 1)}`;
+}
+
+async function showQuieterTime() {
+    const selected = offers.get(service.value);
+    if (!selected || !quietResult || quietButton.disabled) return;
+
+    const version = quietVersion;
+    quietLoading = true;
+    updateQuietControls();
+    quietResult.textContent = "Checking past visits…";
+
+    try {
+        const data = await request(
+            `quieter-time.php?serviceId=${encodeURIComponent(selected.id)}`
+        );
+
+        // The user may have switched services while the request was running.
+        if (version !== quietVersion) return;
+        if (data?.serviceId !== selected.id) {
+            throw new Error("Please select the service again.");
+        }
+
+        if (data.status === "insufficient_history") {
+            quietResult.textContent =
+                `Not enough visits yet to compare hours for ${selected.name}.`;
+        } else if (data.status === "similar_hours") {
+            quietResult.textContent =
+                `No hour stands out for ${selected.name}; past visits had similar lines.`;
+        } else if (data.status === "suggested" && data.suggestion && data.comparison) {
+            const best = data.suggestion;
+            const other = data.comparison;
+
+            quietResult.textContent =
+                `${selected.name}: try ${quietHour(best)} (${data.clock}). ` +
+                `Average number ahead: ${best.averageAhead} across ${best.visits} visits, ` +
+                `compared with ${other.averageAhead} on ${quietHour(other)} (past 12 weeks).`;
+        } else {
+            throw new Error("The server returned an unexpected recommendation.");
+        }
+    } catch (error) {
+        if (version === quietVersion) {
+            quietResult.textContent = `Suggestion unavailable. ${error.message}`;
+        }
+    } finally {
+        if (version === quietVersion) {
+            quietLoading = false;
+            updateQuietControls();
+        }
+    }
+}
+
+quietButton?.addEventListener("click", showQuieterTime);
+
 async function request(file, payload) {
     const options = { method: "GET", credentials: "same-origin", cache: "no-store" };
     if (payload !== undefined) {
@@ -60,6 +146,7 @@ function updateControls() {
     service.disabled = !canChoose;
     joinButton.disabled = !canChoose || !offers.has(service.value);
     leaveButton.disabled = busy || !known || currentQueue === null;
+    updateQuietControls();
 }
 
 function showPreview() {
